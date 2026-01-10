@@ -10,24 +10,71 @@
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="16">
             <Label FontAttributes="Bold" Text="Overview" />
-            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="8" ColumnSpacing="12">
-                <Entry Grid.Row="0" Grid.Column="0" Placeholder="Manufacturer" Text="{Binding Manufacturer}" />
-                <Entry Grid.Row="0" Grid.Column="1" Placeholder="Material" Text="{Binding Material}" />
-                <Entry Grid.Row="1" Grid.Column="0" Placeholder="Color" Text="{Binding ColorName}" />
-                <Entry Grid.Row="1" Grid.Column="1" Placeholder="Status" Text="{Binding Status}" />
-                <Entry Grid.Row="2" Grid.Column="0" Placeholder="Remaining (g)" Text="{Binding RemainingGrams}" />
-                <Entry Grid.Row="2" Grid.Column="1" Placeholder="Carrier / spool" Text="{Binding SpoolCarrier}" />
+            <Grid
+                ColumnDefinitions="*,*"
+                ColumnSpacing="12"
+                RowDefinitions="Auto,Auto,Auto"
+                RowSpacing="8">
+                <Entry
+                    Grid.Column="0"
+                    Grid.Row="0"
+                    Placeholder="Manufacturer"
+                    Text="{Binding Manufacturer}" />
+                <Entry
+                    Grid.Column="1"
+                    Grid.Row="0"
+                    Placeholder="Material"
+                    Text="{Binding Material}" />
+                <Entry
+                    Grid.Column="0"
+                    Grid.Row="1"
+                    Placeholder="Color"
+                    Text="{Binding ColorName}" />
+                <Entry
+                    Grid.Column="1"
+                    Grid.Row="1"
+                    Placeholder="Status"
+                    Text="{Binding Status}" />
+                <Entry
+                    Grid.Column="0"
+                    Grid.Row="2"
+                    Placeholder="Remaining (g)"
+                    Text="{Binding RemainingGrams}" />
+                <Entry
+                    Grid.Column="1"
+                    Grid.Row="2"
+                    Placeholder="Carrier / spool"
+                    Text="{Binding SpoolCarrier}" />
             </Grid>
 
-            <Label FontAttributes="Bold" Text="Usage & history" />
-            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="8" ColumnSpacing="12">
-                <Entry Grid.Row="0" Grid.Column="0" Placeholder="Opened" Text="{Binding OpenedDate}" />
-                <Entry Grid.Row="0" Grid.Column="1" Placeholder="Last weighed" Text="{Binding LastWeighedDate}" />
-                <Entry Grid.Row="1" Grid.Column="0" Placeholder="Last dried" Text="{Binding LastDriedDate}" />
+            <Label FontAttributes="Bold" Text="Usage &amp; history" />
+            <Grid
+                ColumnDefinitions="*,*"
+                ColumnSpacing="12"
+                RowDefinitions="Auto,Auto,Auto"
+                RowSpacing="8">
+                <Entry
+                    Grid.Column="0"
+                    Grid.Row="0"
+                    Placeholder="Opened"
+                    Text="{Binding OpenedDate}" />
+                <Entry
+                    Grid.Column="1"
+                    Grid.Row="0"
+                    Placeholder="Last weighed"
+                    Text="{Binding LastWeighedDate}" />
+                <Entry
+                    Grid.Column="0"
+                    Grid.Row="1"
+                    Placeholder="Last dried"
+                    Text="{Binding LastDriedDate}" />
             </Grid>
 
             <Label FontAttributes="Bold" Text="Notes" />
-            <Editor AutoSize="TextChanges" Placeholder="Notes" Text="{Binding Notes}" />
+            <Editor
+                AutoSize="TextChanges"
+                Placeholder="Notes"
+                Text="{Binding Notes}" />
 
             <Label FontAttributes="Bold" Text="Actions" />
             <HorizontalStackLayout Spacing="8">

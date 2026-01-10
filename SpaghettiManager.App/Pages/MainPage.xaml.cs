@@ -1,10 +1,13 @@
 ﻿using SpaghettiManager.App.ViewModels;
 using UraniumUI.Pages;
+using SpaghettiManager.App.Infrastructure;
 
 namespace SpaghettiManager.App.Pages;
 
 public partial class MainPage : UraniumContentPage
 {
+    public MainPage(): this(ServiceHelper.GetRequiredService<HomePageViewModel>()) {}
+
     public MainPage(HomePageViewModel viewModel)
     {
         InitializeComponent();

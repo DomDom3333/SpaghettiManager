@@ -21,31 +21,31 @@ public partial class CatalogHomeViewModel : ObservableObject
         {
             Title = "Manufacturers",
             Description = "Aliases, defaults, merge rules",
-            Route = "catalog/section?key=manufacturers"
+            Route = "///catalog/section?key=manufacturers"
         });
         Sections.Add(new CatalogSectionItem
         {
             Title = "EAN mappings",
             Description = "Barcode to product mapping",
-            Route = "catalog/ean-mappings"
+            Route = "///catalog/ean-mappings"
         });
         Sections.Add(new CatalogSectionItem
         {
             Title = "Spools / carriers",
             Description = "Dimensions, tare, AMS compatibility",
-            Route = "catalog/section?key=spools"
+            Route = "///catalog/section?key=spools"
         });
         Sections.Add(new CatalogSectionItem
         {
             Title = "Materials",
             Description = "Material profiles and defaults",
-            Route = "catalog/section?key=materials"
+            Route = "///catalog/section?key=materials"
         });
         Sections.Add(new CatalogSectionItem
         {
             Title = "Additives",
             Description = "Optional blends and modifiers",
-            Route = "catalog/section?key=additives"
+            Route = "///catalog/section?key=additives"
         });
     }
 

@@ -27,6 +27,7 @@ public partial class ScanPageViewModel : ObservableObject
     private Task ReviewAsync()
     {
         var barcodeValue = string.IsNullOrWhiteSpace(Barcode) ? "unknown" : Barcode;
-        return Shell.Current.GoToAsync($"scan/review?barcode={barcodeValue}");
+        // Use absolute Shell route
+        return Shell.Current.GoToAsync($"///scan/review?barcode={barcodeValue}");
     }
 }

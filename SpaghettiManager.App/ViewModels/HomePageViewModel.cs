@@ -53,11 +53,11 @@ public partial class HomePageViewModel : ObservableObject
 
     public HomePageViewModel()
     {
-        ScanNewSpoolCommand = new AsyncRelayCommand(() => NavigateAsync("//scan"));
-        AddManuallyCommand = new AsyncRelayCommand(() => NavigateAsync("//inventory/action?mode=add"));
-        WeighFilamentCommand = new AsyncRelayCommand(() => NavigateAsync("//inventory/action?mode=weigh"));
-        RespoolFilamentCommand = new AsyncRelayCommand(() => NavigateAsync("//inventory/action?mode=respool"));
-        EditEanMappingsCommand = new AsyncRelayCommand(() => NavigateAsync("//catalog/ean-mappings"));
+        ScanNewSpoolCommand = new AsyncRelayCommand(() => NavigateAsync("///scan"));
+        AddManuallyCommand = new AsyncRelayCommand(() => NavigateAsync("///inventory/action?mode=add"));
+        WeighFilamentCommand = new AsyncRelayCommand(() => NavigateAsync("///inventory/action?mode=weigh"));
+        RespoolFilamentCommand = new AsyncRelayCommand(() => NavigateAsync("///inventory/action?mode=respool"));
+        EditEanMappingsCommand = new AsyncRelayCommand(() => NavigateAsync("///catalog/ean-mappings"));
     }
 
     [RelayCommand]
@@ -102,25 +102,25 @@ public partial class HomePageViewModel : ObservableObject
         {
             Title = "Low remaining filament",
             Description = "3 spools under 150 g",
-            TargetRoute = "//inventory?filter=low"
+            TargetRoute = "///inventory?filter=low"
         });
         Alerts.Add(new AlertItem
         {
             Title = "Unknown remaining",
             Description = "2 spools need weighing",
-            TargetRoute = "//inventory?filter=unknown"
+            TargetRoute = "///inventory?filter=unknown"
         });
         Alerts.Add(new AlertItem
         {
             Title = "Needs drying",
             Description = "1 hygroscopic spool overdue",
-            TargetRoute = "//inventory?filter=dry"
+            TargetRoute = "///inventory?filter=dry"
         });
         Alerts.Add(new AlertItem
         {
             Title = "Unmapped barcode",
             Description = "1 scan needs catalog mapping",
-            TargetRoute = "//catalog/ean-mappings"
+            TargetRoute = "///catalog/ean-mappings"
         });
 
         Highlights.Clear();
@@ -128,19 +128,19 @@ public partial class HomePageViewModel : ObservableObject
         {
             Title = "Recently added",
             Subtitle = "4 spools this week",
-            TargetRoute = "//inventory?filter=recent"
+            TargetRoute = "///inventory?filter=recent"
         });
         Highlights.Add(new HighlightItem
         {
             Title = "In use",
             Subtitle = "2 active spools",
-            TargetRoute = "//inventory?filter=in-use"
+            TargetRoute = "///inventory?filter=in-use"
         });
         Highlights.Add(new HighlightItem
         {
             Title = "Favorites",
             Subtitle = "PLA essentials",
-            TargetRoute = "//inventory?filter=favorite"
+            TargetRoute = "///inventory?filter=favorite"
         });
 
         Stats.Clear();
@@ -148,19 +148,19 @@ public partial class HomePageViewModel : ObservableObject
         {
             Title = "By material",
             Value = "PLA 6 • PETG 4 • TPU 2",
-            TargetRoute = "//inventory?filter=material"
+            TargetRoute = "///inventory?filter=material"
         });
         Stats.Add(new StatItem
         {
             Title = "By manufacturer",
             Value = "Prusament 5 • Overture 4",
-            TargetRoute = "//inventory?filter=manufacturer"
+            TargetRoute = "///inventory?filter=manufacturer"
         });
         Stats.Add(new StatItem
         {
             Title = "By status",
             Value = "Sealed 5 • Opened 5 • In use 2",
-            TargetRoute = "//inventory?filter=status"
+            TargetRoute = "///inventory?filter=status"
         });
 
         return Task.CompletedTask;

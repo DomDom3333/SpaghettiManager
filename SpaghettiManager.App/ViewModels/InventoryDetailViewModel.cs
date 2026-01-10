@@ -52,13 +52,13 @@ public partial class InventoryDetailViewModel : ObservableObject, IQueryAttribut
     [RelayCommand]
     private Task RespoolAsync()
     {
-        return Shell.Current.GoToAsync("inventory/action?mode=respool");
+        return Shell.Current.GoToAsync("///inventory/action?mode=respool");
     }
 
     [RelayCommand]
     private Task WeighNowAsync()
     {
-        return Shell.Current.GoToAsync("inventory/action?mode=weigh");
+        return Shell.Current.GoToAsync("///inventory/action?mode=weigh");
     }
 
     [RelayCommand]

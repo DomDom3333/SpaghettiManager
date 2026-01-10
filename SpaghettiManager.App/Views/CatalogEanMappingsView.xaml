@@ -2,8 +2,8 @@
 <ContentView
     x:Class="SpaghettiManager.App.Views.CatalogEanMappingsView"
     x:DataType="viewModels:CatalogEanMappingsViewModel"
+    x:Name="Root"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
     xmlns:viewModels="clr-namespace:SpaghettiManager.App.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
@@ -16,8 +16,12 @@
 
             <CollectionView ItemsSource="{Binding Mappings}" SelectionMode="None">
                 <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="viewModels:CatalogEanMappingsViewModel.EanMappingItem">
-                        <Frame Margin="0,4" Padding="12">
+                    <!--  Use '+' for nested types in x:DataType  -->
+                    <DataTemplate x:DataType="viewModels:CatalogEanMappingsViewModel+EanMappingItem">
+                        <Border
+                            Margin="0,4"
+                            Padding="12"
+                            StrokeThickness="0">
                             <VerticalStackLayout Spacing="6">
                                 <Label FontAttributes="Bold" Text="{Binding Ean}" />
                                 <Label FontSize="12" Text="{Binding Manufacturer}" />
@@ -26,16 +30,16 @@
                                 <Label FontSize="12" Text="{Binding DefaultSpool}" />
                                 <HorizontalStackLayout Spacing="8">
                                     <Button
-                                        Command="{Binding Source={RelativeSource AncestorType=ContentView}, Path=BindingContext.EditMappingCommand}"
+                                        Command="{Binding Source={x:Reference Root}, Path=BindingContext.EditMappingCommand}"
                                         CommandParameter="{Binding .}"
                                         Text="Edit" />
                                     <Button
-                                        Command="{Binding Source={RelativeSource AncestorType=ContentView}, Path=BindingContext.MergeMappingCommand}"
+                                        Command="{Binding Source={x:Reference Root}, Path=BindingContext.MergeMappingCommand}"
                                         CommandParameter="{Binding .}"
                                         Text="Merge" />
                                 </HorizontalStackLayout>
                             </VerticalStackLayout>
-                        </Frame>
+                        </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>

@@ -9,7 +9,10 @@
 
     <VerticalStackLayout Padding="16" Spacing="16">
         <Label FontAttributes="Bold" Text="Scan a barcode" />
-        <Frame BackgroundColor="{DynamicResource SecondaryContainer}" HeightRequest="220" Padding="0">
+        <Frame
+            BackgroundColor="{DynamicResource SecondaryContainer}"
+            HeightRequest="220"
+            Padding="0">
             <Grid>
                 <Label
                     HorizontalOptions="Center"
@@ -18,10 +21,10 @@
                 <Label
                     FontSize="12"
                     HorizontalOptions="Center"
+                    IsVisible="{Binding IsScanning}"
                     Text="Scanning active"
                     TextColor="{DynamicResource Primary}"
-                    VerticalOptions="End"
-                    IsVisible="{Binding IsScanning}" />
+                    VerticalOptions="End" />
             </Grid>
         </Frame>
 
@@ -32,6 +35,6 @@
             <Button Command="{Binding SimulateScanCommand}" Text="Simulate scan" />
         </HorizontalStackLayout>
 
-        <Button Command="{Binding ReviewCommand}" Text="Review & confirm" />
+        <Button Command="{Binding ReviewCommand}" Text="Review &amp; confirm" />
     </VerticalStackLayout>
 </ContentView>

@@ -69,7 +69,7 @@ public partial class InventoryListViewModel : ObservableObject, IQueryAttributab
             return Task.CompletedTask;
         }
 
-        return Shell.Current.GoToAsync($"inventory/detail?itemId={item.Id}");
+        return Shell.Current.GoToAsync($"///inventory/detail?itemId={item.Id}");
     }
 
     [RelayCommand]
@@ -81,25 +81,25 @@ public partial class InventoryListViewModel : ObservableObject, IQueryAttributab
     [RelayCommand]
     private Task UpdateRemainingAsync(InventoryItemSummary item)
     {
-        return Shell.Current.GoToAsync("inventory/action?mode=weigh");
+        return Shell.Current.GoToAsync("///inventory/action?mode=weigh");
     }
 
     [RelayCommand]
     private Task ChangeSpoolAsync(InventoryItemSummary item)
     {
-        return Shell.Current.GoToAsync("inventory/action?mode=respool");
+        return Shell.Current.GoToAsync("///inventory/action?mode=respool");
     }
 
     [RelayCommand]
     private Task AddManualAsync()
     {
-        return Shell.Current.GoToAsync("inventory/action?mode=add");
+        return Shell.Current.GoToAsync("///inventory/action?mode=add");
     }
 
     [RelayCommand]
     private Task ScanBarcodeAsync()
     {
-        return Shell.Current.GoToAsync("//scan");
+        return Shell.Current.GoToAsync("///scan");
     }
 
     private void SetFilter(string? filter)

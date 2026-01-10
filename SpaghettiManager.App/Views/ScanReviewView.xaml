@@ -18,9 +18,9 @@
             </Frame>
 
             <Label FontAttributes="Bold" Text="Review details" />
-            <CollectionView ItemsSource="{Binding Fields}" SelectionMode="None">
+            <CollectionView ItemsSource="{Binding EditableFields}" SelectionMode="None">
                 <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="viewModels:ScanReviewViewModel.EditableField">
+                    <DataTemplate x:DataType="viewModels:ScanReviewViewModel+EditableField">
                         <Frame Margin="0,4" Padding="12">
                             <VerticalStackLayout Spacing="6">
                                 <Label FontAttributes="Bold" Text="{Binding Label}" />
@@ -35,7 +35,7 @@
             </CollectionView>
 
             <HorizontalStackLayout Spacing="8">
-                <Label VerticalOptions="Center" Text="Save EAN mapping" />
+                <Label Text="Save EAN mapping" VerticalOptions="Center" />
                 <Switch IsToggled="{Binding SaveEanMapping}" />
             </HorizontalStackLayout>
 

@@ -2,8 +2,8 @@
 <ContentView
     x:Class="SpaghettiManager.App.Views.HomeDashboardView"
     x:DataType="viewModels:HomePageViewModel"
+    x:Name="Root"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
     xmlns:viewModels="clr-namespace:SpaghettiManager.App.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
@@ -38,7 +38,7 @@
                 <Label FontAttributes="Bold" Text="Alerts" />
                 <CollectionView ItemsSource="{Binding Alerts}" SelectionMode="None">
                     <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="viewModels:HomePageViewModel.AlertItem">
+                        <DataTemplate x:DataType="viewModels:HomePageViewModel+AlertItem">
                             <Frame
                                 BackgroundColor="{DynamicResource ErrorContainer}"
                                 Margin="0,4"
@@ -49,7 +49,7 @@
                                         <Label FontSize="12" Text="{Binding Description}" />
                                     </VerticalStackLayout>
                                     <Button
-                                        Command="{Binding Source={RelativeSource AncestorType=ContentView}, Path=BindingContext.OpenAlertCommand}"
+                                        Command="{Binding Source={x:Reference Root}, Path=BindingContext.OpenAlertCommand}"
                                         CommandParameter="{Binding .}"
                                         Grid.Column="1"
                                         Text="Resolve" />
@@ -97,7 +97,7 @@
                 <Label FontAttributes="Bold" Text="Highlights" />
                 <CollectionView ItemsSource="{Binding Highlights}" SelectionMode="None">
                     <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="viewModels:HomePageViewModel.HighlightItem">
+                        <DataTemplate x:DataType="viewModels:HomePageViewModel+HighlightItem">
                             <Frame Margin="0,4" Padding="12">
                                 <Grid ColumnDefinitions="*,Auto">
                                     <VerticalStackLayout Spacing="2">
@@ -105,7 +105,7 @@
                                         <Label FontSize="12" Text="{Binding Subtitle}" />
                                     </VerticalStackLayout>
                                     <Button
-                                        Command="{Binding Source={RelativeSource AncestorType=ContentView}, Path=BindingContext.OpenHighlightCommand}"
+                                        Command="{Binding Source={x:Reference Root}, Path=BindingContext.OpenHighlightCommand}"
                                         CommandParameter="{Binding .}"
                                         Grid.Column="1"
                                         Text="View" />
@@ -121,7 +121,7 @@
                 <Label FontAttributes="Bold" Text="Stats / Insights" />
                 <CollectionView ItemsSource="{Binding Stats}" SelectionMode="None">
                     <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="viewModels:HomePageViewModel.StatItem">
+                        <DataTemplate x:DataType="viewModels:HomePageViewModel+StatItem">
                             <Frame Margin="0,4" Padding="12">
                                 <Grid ColumnDefinitions="*,Auto">
                                     <VerticalStackLayout Spacing="2">
@@ -129,7 +129,7 @@
                                         <Label FontSize="12" Text="{Binding Value}" />
                                     </VerticalStackLayout>
                                     <Button
-                                        Command="{Binding Source={RelativeSource AncestorType=ContentView}, Path=BindingContext.OpenStatCommand}"
+                                        Command="{Binding Source={x:Reference Root}, Path=BindingContext.OpenStatCommand}"
                                         CommandParameter="{Binding .}"
                                         Grid.Column="1"
                                         Text="Filter" />

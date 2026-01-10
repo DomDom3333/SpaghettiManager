@@ -2,6 +2,7 @@
 <ContentView
     x:Class="SpaghettiManager.App.Views.CatalogHomeView"
     x:DataType="viewModels:CatalogHomeViewModel"
+    x:Name="Root"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
     xmlns:viewModels="clr-namespace:SpaghettiManager.App.ViewModels"
@@ -12,7 +13,7 @@
             <Label FontAttributes="Bold" Text="Catalog" />
             <CollectionView ItemsSource="{Binding Sections}" SelectionMode="None">
                 <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="viewModels:CatalogHomeViewModel.CatalogSectionItem">
+                    <DataTemplate x:DataType="viewModels:CatalogHomeViewModel+CatalogSectionItem">
                         <Frame Margin="0,4" Padding="12">
                             <Grid ColumnDefinitions="*,Auto">
                                 <VerticalStackLayout Spacing="2">
@@ -20,7 +21,7 @@
                                     <Label FontSize="12" Text="{Binding Description}" />
                                 </VerticalStackLayout>
                                 <Button
-                                    Command="{Binding Source={RelativeSource AncestorType=ContentView}, Path=BindingContext.OpenSectionCommand}"
+                                    Command="{Binding Source={x:Reference Root}, Path=BindingContext.OpenSectionCommand}"
                                     CommandParameter="{Binding .}"
                                     Grid.Column="1"
                                     Text="Open" />
