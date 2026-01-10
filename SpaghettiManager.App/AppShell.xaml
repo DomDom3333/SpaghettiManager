@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Shell
+    Shell.FlyoutBehavior="Disabled"
+    x:Class="SpaghettiManager.App.AppShell"
+    x:DataType="local:AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:local="clr-namespace:SpaghettiManager.App"
+    xmlns:pages="clr-namespace:SpaghettiManager.App.Pages"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <TabBar>
+        <ShellContent
+            ContentTemplate="{DataTemplate pages:MainPage}"
+            Route="MainPage"
+            Title="Main Page" />
+
+        <ShellContent
+            ContentTemplate="{DataTemplate pages:InventoryListPage}"
+            Icon="tab_inventory.png"
+            Title="Inventory" />
+
+        <ShellContent
+            ContentTemplate="{DataTemplate pages:ScanPage}"
+            Icon="tab_scan.png"
+            Title="Scan" />
+
+        <ShellContent
+            ContentTemplate="{DataTemplate pages:CatalogHomePage}"
+            Icon="tab_catalog.png"
+            Title="Catalog" />
+
+        <ShellContent
+            ContentTemplate="{DataTemplate pages:SettingsPage}"
+            Icon="tab_settings.png"
+            Title="Settings" />
+
+    </TabBar>
+</Shell>

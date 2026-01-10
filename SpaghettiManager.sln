@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaghettiManager.App", "SpaghettiManager.App\SpaghettiManager.App.csproj", "{368694C5-5F8C-46D3-845D-4756EC6684CF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Api", "Api", "{4521388E-C846-473E-BA19-C4B23C4B45FD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaghettiManager.Api", "SpaghettiManager.Api\SpaghettiManager.Api.csproj", "{5B9C19B2-38F7-4EAF-B73D-D80A54D4B0F4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{38AFD663-F616-4827-B617-5A098366DAD7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaghettiManager.Model", "SpaghettiManager.Model\SpaghettiManager.Model.csproj", "{D86BFA89-442C-444B-9B4A-25462E790078}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaghettiManager.Utils", "SpaghettiManager.Utils\SpaghettiManager.Utils.csproj", "{DE226074-FFC3-4704-A8C1-0714D1E8A593}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "App", "App", "{0E458EC2-F5D8-4DEB-A05F-541197E626E8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{368694C5-5F8C-46D3-845D-4756EC6684CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{368694C5-5F8C-46D3-845D-4756EC6684CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{368694C5-5F8C-46D3-845D-4756EC6684CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{368694C5-5F8C-46D3-845D-4756EC6684CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B9C19B2-38F7-4EAF-B73D-D80A54D4B0F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B9C19B2-38F7-4EAF-B73D-D80A54D4B0F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B9C19B2-38F7-4EAF-B73D-D80A54D4B0F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B9C19B2-38F7-4EAF-B73D-D80A54D4B0F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D86BFA89-442C-444B-9B4A-25462E790078}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D86BFA89-442C-444B-9B4A-25462E790078}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D86BFA89-442C-444B-9B4A-25462E790078}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D86BFA89-442C-444B-9B4A-25462E790078}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE226074-FFC3-4704-A8C1-0714D1E8A593}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE226074-FFC3-4704-A8C1-0714D1E8A593}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE226074-FFC3-4704-A8C1-0714D1E8A593}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE226074-FFC3-4704-A8C1-0714D1E8A593}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5B9C19B2-38F7-4EAF-B73D-D80A54D4B0F4} = {4521388E-C846-473E-BA19-C4B23C4B45FD}
+		{D86BFA89-442C-444B-9B4A-25462E790078} = {38AFD663-F616-4827-B617-5A098366DAD7}
+		{DE226074-FFC3-4704-A8C1-0714D1E8A593} = {38AFD663-F616-4827-B617-5A098366DAD7}
+		{368694C5-5F8C-46D3-845D-4756EC6684CF} = {0E458EC2-F5D8-4DEB-A05F-541197E626E8}
+	EndGlobalSection
+EndGlobal

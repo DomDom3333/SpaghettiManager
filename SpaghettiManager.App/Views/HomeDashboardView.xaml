@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="SpaghettiManager.App.Views.HomeDashboardView"
+    x:DataType="viewModels:HomePageViewModel"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+    xmlns:viewModels="clr-namespace:SpaghettiManager.App.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+            <!--  Summary Strip  -->
+            <Grid
+                BackgroundColor="{DynamicResource SecondaryContainer}"
+                ColumnDefinitions="*,*,*,*"
+                Padding="8"
+                RowDefinitions="Auto">
+                <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center">
+                    <Label FontAttributes="Bold" Text="Items" />
+                    <Label FontSize="18" Text="{Binding TotalItems}" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center">
+                    <Label FontAttributes="Bold" Text="Remaining (g)" />
+                    <Label FontSize="18" Text="{Binding TotalRemainingGrams}" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center">
+                    <Label FontAttributes="Bold" Text="Unknown" />
+                    <Label FontSize="18" Text="{Binding UnknownRemainingCount}" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="3" HorizontalOptions="Center">
+                    <Label FontAttributes="Bold" Text="In Use" />
+                    <Label FontSize="18" Text="{Binding ItemsInUseCount}" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <!--  Alerts / To-Dos  -->
+            <VerticalStackLayout Spacing="8">
+                <Label FontAttributes="Bold" Text="Alerts" />
+                <CollectionView ItemsSource="{Binding Alerts}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame
+                                BackgroundColor="{DynamicResource ErrorContainer}"
+                                Margin="0,4"
+                                Padding="12">
+                                <Grid>
+                                    <Label Text="{Binding Title}" />
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+
+            <!--  Quick Actions  -->
+            <VerticalStackLayout Spacing="8">
+                <Label FontAttributes="Bold" Text="Quick Actions" />
+                <Grid
+                    ColumnDefinitions="*,*"
+                    ColumnSpacing="8"
+                    RowDefinitions="Auto,Auto"
+                    RowSpacing="8">
+                    <Button
+                        Command="{Binding ScanNewSpoolCommand}"
+                        Grid.Column="0"
+                        Grid.Row="0"
+                        Text="Scan new spool" />
+                    <Button
+                        Command="{Binding AddManuallyCommand}"
+                        Grid.Column="1"
+                        Grid.Row="0"
+                        Text="Add manually" />
+                    <Button
+                        Command="{Binding WeighFilamentCommand}"
+                        Grid.Column="0"
+                        Grid.Row="1"
+                        Text="Weigh filament" />
+                    <Button
+                        Command="{Binding RespoolFilamentCommand}"
+                        Grid.Column="1"
+                        Grid.Row="1"
+                        Text="Respool filament" />
+                </Grid>
+                <Button Command="{Binding EditEanMappingsCommand}" Text="Edit EAN mappings" />
+            </VerticalStackLayout>
+
+            <!--  Inventory Highlights (placeholder)  -->
+            <VerticalStackLayout Spacing="8">
+                <Label FontAttributes="Bold" Text="Highlights" />
+                <Label FontAttributes="Italic" Text="Recently added, In use, Favorites… (coming soon)" />
+            </VerticalStackLayout>
+
+            <!--  Stats / Insights (placeholder)  -->
+            <VerticalStackLayout Spacing="8">
+                <Label FontAttributes="Bold" Text="Stats / Insights" />
+                <Label FontAttributes="Italic" Text="Material, Manufacturer, Status breakdown… (coming soon)" />
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

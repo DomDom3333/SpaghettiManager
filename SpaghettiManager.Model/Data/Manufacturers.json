@@ -1,0 +1,156 @@
+﻿[
+  {
+    "id": "bambu",
+    "name": "Bambu Lab",
+    "country": "CN",
+    "website": "https://bambulab.com",
+    "aliases": ["Bambu", "BambuLab"]
+  },
+  {
+    "id": "prusa",
+    "name": "Prusa Research",
+    "country": "CZ",
+    "website": "https://www.prusa3d.com",
+    "aliases": ["Prusa", "Prusament"]
+  },
+  {
+    "id": "polymaker",
+    "name": "Polymaker",
+    "country": "CN",
+    "website": "https://polymaker.com",
+    "aliases": ["PolyMaker"]
+  },
+  {
+    "id": "esun",
+    "name": "eSUN",
+    "country": "CN",
+    "website": "https://www.esun3d.com",
+    "aliases": ["Esun", "eSun"]
+  },
+  {
+    "id": "elegoo",
+    "name": "Elegoo",
+    "country": "CN",
+    "website": "https://www.elegoo.com",
+    "aliases": []
+  },
+  {
+    "id": "sunlu",
+    "name": "SUNLU",
+    "country": "CN",
+    "website": "https://www.sunlu.com",
+    "aliases": ["Sunlu"]
+  },
+  {
+    "id": "overture",
+    "name": "Overture",
+    "country": "CN",
+    "website": "https://www.overture3d.com",
+    "aliases": []
+  },
+  {
+    "id": "creality",
+    "name": "Creality",
+    "country": "CN",
+    "website": "https://www.creality.com",
+    "aliases": ["Creality3D"]
+  },
+  {
+    "id": "anycubic",
+    "name": "Anycubic",
+    "country": "CN",
+    "website": "https://www.anycubic.com",
+    "aliases": []
+  },
+  {
+    "id": "fillamentum",
+    "name": "Fillamentum",
+    "country": "CZ",
+    "website": "https://fillamentum.com",
+    "aliases": []
+  },
+  {
+    "id": "colorfabb",
+    "name": "colorFabb",
+    "country": "NL",
+    "website": "https://colorfabb.com",
+    "aliases": ["Colorfabb"]
+  },
+  {
+    "id": "extrudr",
+    "name": "Extrudr",
+    "country": "AT",
+    "website": "https://www.extrudr.com",
+    "aliases": []
+  },
+  {
+    "id": "addnorth",
+    "name": "add:north",
+    "country": "SE",
+    "website": "https://addnorth.com",
+    "aliases": ["AddNorth", "add north"]
+  },
+  {
+    "id": "formfutura",
+    "name": "FormFutura",
+    "country": "NL",
+    "website": "https://www.formfutura.com",
+    "aliases": []
+  },
+  {
+    "id": "dasfilament",
+    "name": "Das Filament",
+    "country": "DE",
+    "website": "https://www.dasfilament.de",
+    "aliases": ["DasFilament"]
+  },
+  {
+    "id": "fiberlogy",
+    "name": "Fiberlogy",
+    "country": "PL",
+    "website": "https://fiberlogy.com",
+    "aliases": []
+  },
+  {
+    "id": "spectrum",
+    "name": "Spectrum Filaments",
+    "country": "PL",
+    "website": "https://spectrumfilaments.com",
+    "aliases": ["Spectrum"]
+  },
+  {
+    "id": "basf",
+    "name": "BASF Ultrafuse",
+    "country": "DE",
+    "website": "https://forward-am.com",
+    "aliases": ["Ultrafuse", "Forward AM"]
+  },
+  {
+    "id": "proto_pasta",
+    "name": "Proto-pasta",
+    "country": "US",
+    "website": "https://www.proto-pasta.com",
+    "aliases": ["Protopasta"]
+  },
+  {
+    "id": "verbatim",
+    "name": "Verbatim",
+    "country": "JP",
+    "website": "https://www.verbatim.com",
+    "aliases": []
+  },
+  {
+    "id": "generic",
+    "name": "Generic",
+    "country": null,
+    "website": null,
+    "aliases": ["OEM", "No Brand", "Unbranded"]
+  },
+  {
+    "id": "unknown",
+    "name": "Unknown",
+    "country": null,
+    "website": null,
+    "aliases": []
+  }
+]

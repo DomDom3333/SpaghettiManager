@@ -1,0 +1,185 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFrameworks>$(TargetFrameworks);net10.0-android</TargetFrameworks>
+        <OutputType>Exe</OutputType>
+        <RootNamespace>SpaghettiManager.App</RootNamespace>
+        <SingleProject>true</SingleProject>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <UseMaui>true</UseMaui>
+        <LangVersion>preview</LangVersion>
+        <ApplicationTitle>SpaghettiManager.App</ApplicationTitle>
+        <ApplicationId>EssiDev.SpaghettiManager</ApplicationId>
+        <ApplicationIdGuid>8240B067-E5F2-467B-BD5E-D4E5699536A8</ApplicationIdGuid>
+
+        <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+        <ApplicationVersion>1</ApplicationVersion>
+
+        <MauiVersion>10.0.11</MauiVersion>
+        <ShinyVersion>4.0.0-beta-0095</ShinyVersion>
+        <MediatorVersion>6.0.0</MediatorVersion>
+        <!--slower build, faster runtime in DEBUG-->
+        <!-- <_MauiForceXamlCForDebug Condition="'$(Configuration)' == 'Debug'">true</_MauiForceXamlCForDebug> -->
+    </PropertyGroup>
+
+    <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+        <DefineConstants>$(DefineConstants);PLATFORM</DefineConstants>
+        <SupportedOSPlatformVersion>26.0</SupportedOSPlatformVersion>
+        <TargetPlatformVersion>36</TargetPlatformVersion>
+        <!--
+        <EmbedAssembliesIntoApk Condition="'$(Configuration)' == 'Debug'">true</EmbedAssembliesIntoApk>
+        <AndroidPackageFormats Condition="'$(Configuration)' == 'Release'">aab</AndroidPackageFormats>
+        <AndroidLinkTool>r8</AndroidLinkTool>
+        <AndroidLinkTool>proguard</AndroidLinkTool>
+        -->
+    </PropertyGroup>
+
+    <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android' AND '$(Configuration)' == 'Debug'">
+        <!--these help speed up android builds-->
+        <RuntimeIdentifier>android-arm64</RuntimeIdentifier>
+        <AndroidEnableProfiler>true</AndroidEnableProfiler>
+        <AndroidPackageFormat>apk</AndroidPackageFormat>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Content Include="obj\Debug\net10.0-android\android-arm64\acw-map.txt" />
+        <Content Include="obj\Debug\net10.0-android\android-arm64\android_debug_keystore.flag" />
+        <Content Include="obj\Debug\net10.0-android\android-arm64\resolvedassemblies.hash" />
+        <Content Include="obj\Debug\net10.0-android\android-arm64\static.flag" />
+        <TrimmerRootDescriptor Include="Linker.xml" Condition="'$(Configuration)' == 'Release'"/>
+
+        <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4"/>
+        <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128"/>
+
+        <MauiImage Include="Resources\Images\*"/>
+        <MauiFont Include="Resources\Fonts\*"/>
+        <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)"/>
+        <MauiAsset Include="appsettings.json" LogicalName="appsettings.json"/>
+        <MauiAsset Include="appsettings.android.json" LogicalName="appsettings.android.json"/>
+        <MauiAsset Include="appsettings.apple.json" LogicalName="appsettings.apple.json"/>
+
+        <Content Remove="**\appsettings.json"/>
+        <Content Remove="**\appsettings.*.json"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Shiny.Core" Version="$(ShinyVersion)"/>
+        <PackageReference Include="Shiny.Hosting.Maui" Version="$(ShinyVersion)"/>
+        <PackageReference Include="Shiny.Reflector" Version="1.7.1"/>
+        <PackageReference Include="Shiny.Extensions.DependencyInjection" Version="1.3.1"/>
+        <PackageReference Include="Shiny.Extensions.Stores" Version="1.3.1"/>
+
+        <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" Condition="'$(Configuration)' == 'Debug'"/>
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0"/>
+        <PackageReference Include="CommunityToolkit.Maui" Version="13.0.0"/>
+        <PackageReference Include="CommunityToolkit.Maui.Markup" Version="7.0.0"/>
+        <PackageReference Include="CommunityToolkit.Maui.MediaElement" Version="7.0.0"/>
+        <PackageReference Include="CommunityToolkit.Maui.Camera" Version="5.0.0"/>
+        <PackageReference Include="ReactiveUI" Version="20.2.45"/>
+        <PackageReference Include="ReactiveUI.Maui" Version="20.2.45"/>
+        <PackageReference Include="ReactiveUI.SourceGenerators" Version="2.1.27">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Shiny.Mediator" Version="$(MediatorVersion)"/>
+        <PackageReference Include="Shiny.Mediator.Maui" Version="$(MediatorVersion)"/>
+        <PackageReference Include="Shiny.Mediator.Resilience" Version="$(MediatorVersion)"/>
+        <PackageReference Include="Shiny.Extensions.Configuration.Remote.Maui" Version="1.0.0-pre-0008"/>
+        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Localization" Version="10.0.0"/>
+        <PackageReference Include="Shiny.Extensions.Localization.Generator" Version="2.0.0"/>
+        <PackageReference Include="Shiny.Extensions.Configuration" Version="$(ShinyVersion)"/>
+        <PackageReference Include="Shiny.Jobs" Version="$(ShinyVersion)"/>
+        <PackageReference Include="Shiny.Net.Http" Version="$(ShinyVersion)"/>
+        <PackageReference Include="Shiny.Push" Version="$(ShinyVersion)"/>
+        <PackageReference Include="BarcodeScanning.Native.Maui" Version="2.2.1"/>
+        <PackageReference Include="Plugin.Maui.Audio" Version="4.0.0"/>
+        <PackageReference Include="Plugin.Maui.OCR" Version="1.0.15"/>
+        <PackageReference Include="sqlite-net-pcl" Version="1.9.172"/>
+        <PackageReference Include="AiForms.Maui.SettingsView" Version="1.0.17"/>
+        <PackageReference Include="LiveChartsCore.SkiaSharpView.Maui" Version="2.0.0-rc2"/>
+        <PackageReference Include="AlohaKit.Animations" Version="1.1.0"/>
+        <PackageReference Include="CardsView.Maui" Version="1.1.2"/>
+        <PackageReference Include="UraniumUI.Material" Version="2.13.0"/>
+        <PackageReference Include="UraniumUI.Icons.MaterialIcons" Version="2.13.0"/>
+        <PackageReference Include="UraniumUI.Blurs" Version="2.13.0"/>
+        <PackageReference Include="HorusStudio.Maui.Skeleton" Version="2.0.0"/>
+        <PackageReference Include="SkiaSharp.Views.Maui.Controls" Version="3.119.1"/>
+        <PackageReference Include="SkiaSharp.Extended.UI.Maui" Version="3.0.0"/>
+        <PackageReference Include="Acr.UserDialogs.Maui" Version="9.2.2"/>
+        <PackageReference Include="Plugin.Maui.DebugRainbows" Version="1.2.2" Condition="'$(Configuration)' == 'Debug'"/>
+        <PackageReference Include="FFImageLoading.Maui" Version="1.3.2"/>
+        <PackageReference Include="System.Linq.Async" Version="7.0.0"/>
+        <PackageReference Include="UnitsNet" Version="5.75.0"/>
+        <PackageReference Include="Humanizer" Version="3.0.1"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <MauiXaml Remove="obj\**" />
+      <MauiXaml Update="Pages\MainPage.xaml">
+        <SubType>Designer</SubType>
+      </MauiXaml>
+      <MauiXaml Update="Pages\ScanPage.xaml">
+        <SubType>Designer</SubType>
+      </MauiXaml>
+      <MauiXaml Update="Pages\SettingsPage.xaml">
+        <SubType>Designer</SubType>
+      </MauiXaml>
+      <MauiXaml Update="Pages\InventoryListPage.xaml">
+        <SubType>Designer</SubType>
+      </MauiXaml>
+      <MauiXaml Update="Pages\CatalogHomePage.xaml">
+        <SubType>Designer</SubType>
+      </MauiXaml>
+    </ItemGroup>
+
+    <ItemGroup>
+      <MauiCss Remove="obj\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="obj\**" />
+      <Compile Update="Pages\MainPage.xaml.cs">
+        <DependentUpon>MainPage.xaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Pages\ScanPage.xaml.cs">
+        <DependentUpon>ScanPage.xaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Pages\SettingsPage.xaml.cs">
+        <DependentUpon>SettingsPage.xaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Pages\InventoryListPage.xaml.cs">
+        <DependentUpon>InventoryListPage.xaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Pages\CatalogHomePage.xaml.cs">
+        <DependentUpon>CatalogHomePage.xaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="obj\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <AndroidAarLibrary Remove="obj\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="obj\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Components\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <AdditionalFiles Include="ViewModels\MainPageViewModel.resx" />
+    </ItemGroup>
+
+</Project>
