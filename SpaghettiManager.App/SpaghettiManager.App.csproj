@@ -179,7 +179,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <AdditionalFiles Include="ViewModels\MainPageViewModel.resx" />
     </ItemGroup>
 
 </Project>

@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="SpaghettiManager.App.Views.InventoryListView"
+    x:DataType="viewModels:InventoryListViewModel"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+    xmlns:viewModels="clr-namespace:SpaghettiManager.App.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <Grid RowDefinitions="Auto,*">
+        <VerticalStackLayout Padding="16" Spacing="12">
+            <Label FontAttributes="Bold" Text="Inventory" />
+            <Label FontSize="12" Text="{Binding FilterDescription}" />
+            <CollectionView ItemsSource="{Binding Filters}" SelectionMode="None">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout ItemSpacing="8" Orientation="Horizontal" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="viewModels:InventoryListViewModel.FilterChip">
+                        <Button
+                            Command="{Binding Source={RelativeSource AncestorType=ContentView}, Path=BindingContext.ApplyFilterCommand}"
+                            CommandParameter="{Binding .}"
+                            Text="{Binding Label}" />
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            <HorizontalStackLayout Spacing="8">
+                <Button Command="{Binding AddManualCommand}" Text="Add manually" />
+                <Button Command="{Binding ScanBarcodeCommand}" Text="Scan barcode" />
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+
+        <CollectionView Grid.Row="1" ItemsSource="{Binding Items}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="viewModels:InventoryListViewModel.InventoryItemSummary">
+                    <SwipeView>
+                        <SwipeView.RightItems>
+                            <SwipeItems Mode="Reveal">
+                                <SwipeItem
+                                    BackgroundColor="{DynamicResource ErrorContainer}"
+                                    Command="{Binding Source={RelativeSource AncestorType=ContentView}, Path=BindingContext.MarkEmptyCommand}"
+                                    CommandParameter="{Binding .}"
+                                    Text="Mark empty" />
+                                <SwipeItem
+                                    BackgroundColor="{DynamicResource SecondaryContainer}"
+                                    Command="{Binding Source={RelativeSource AncestorType=ContentView}, Path=BindingContext.UpdateRemainingCommand}"
+                                    CommandParameter="{Binding .}"
+                                    Text="Update remaining" />
+                                <SwipeItem
+                                    BackgroundColor="{DynamicResource PrimaryContainer}"
+                                    Command="{Binding Source={RelativeSource AncestorType=ContentView}, Path=BindingContext.ChangeSpoolCommand}"
+                                    CommandParameter="{Binding .}"
+                                    Text="Change carrier" />
+                            </SwipeItems>
+                        </SwipeView.RightItems>
+                        <Frame Margin="12,4" Padding="12">
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                <BoxView
+                                    Color="{Binding SwatchColor}"
+                                    HeightRequest="32"
+                                    WidthRequest="32" />
+                                <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                    <Label FontAttributes="Bold" Text="{Binding Manufacturer}" />
+                                    <Label FontSize="12" Text="{Binding Material}" />
+                                    <Label FontSize="12" Text="{Binding ColorName}" />
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="2" HorizontalOptions="End" Spacing="2">
+                                    <Label FontAttributes="Bold" Text="{Binding RemainingDisplay}" />
+                                    <Label FontSize="12" Text="{Binding Status}" />
+                                    <Label
+                                        FontSize="10"
+                                        IsVisible="{Binding IsAmsCompatible}"
+                                        Text="AMS OK" />
+                                </VerticalStackLayout>
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={RelativeSource AncestorType=ContentView}, Path=BindingContext.OpenDetailCommand}"
+                                        CommandParameter="{Binding .}" />
+                                </Frame.GestureRecognizers>
+                            </Grid>
+                        </Frame>
+                    </SwipeView>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentView>

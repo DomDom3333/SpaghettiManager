@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="SpaghettiManager.App.Views.InventoryDetailView"
+    x:DataType="viewModels:InventoryDetailViewModel"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+    xmlns:viewModels="clr-namespace:SpaghettiManager.App.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+            <Label FontAttributes="Bold" Text="Overview" />
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="8" ColumnSpacing="12">
+                <Entry Grid.Row="0" Grid.Column="0" Placeholder="Manufacturer" Text="{Binding Manufacturer}" />
+                <Entry Grid.Row="0" Grid.Column="1" Placeholder="Material" Text="{Binding Material}" />
+                <Entry Grid.Row="1" Grid.Column="0" Placeholder="Color" Text="{Binding ColorName}" />
+                <Entry Grid.Row="1" Grid.Column="1" Placeholder="Status" Text="{Binding Status}" />
+                <Entry Grid.Row="2" Grid.Column="0" Placeholder="Remaining (g)" Text="{Binding RemainingGrams}" />
+                <Entry Grid.Row="2" Grid.Column="1" Placeholder="Carrier / spool" Text="{Binding SpoolCarrier}" />
+            </Grid>
+
+            <Label FontAttributes="Bold" Text="Usage & history" />
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="8" ColumnSpacing="12">
+                <Entry Grid.Row="0" Grid.Column="0" Placeholder="Opened" Text="{Binding OpenedDate}" />
+                <Entry Grid.Row="0" Grid.Column="1" Placeholder="Last weighed" Text="{Binding LastWeighedDate}" />
+                <Entry Grid.Row="1" Grid.Column="0" Placeholder="Last dried" Text="{Binding LastDriedDate}" />
+            </Grid>
+
+            <Label FontAttributes="Bold" Text="Notes" />
+            <Editor AutoSize="TextChanges" Placeholder="Notes" Text="{Binding Notes}" />
+
+            <Label FontAttributes="Bold" Text="Actions" />
+            <HorizontalStackLayout Spacing="8">
+                <Button Command="{Binding RespoolCommand}" Text="Respool" />
+                <Button Command="{Binding WeighNowCommand}" Text="Weigh now" />
+                <Button Command="{Binding MarkEmptyCommand}" Text="Mark empty" />
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

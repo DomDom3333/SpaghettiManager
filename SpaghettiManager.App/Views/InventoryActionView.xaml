@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="SpaghettiManager.App.Views.InventoryActionView"
+    x:DataType="viewModels:InventoryActionViewModel"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+    xmlns:viewModels="clr-namespace:SpaghettiManager.App.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+            <Label FontAttributes="Bold" FontSize="20" Text="{Binding Title}" />
+            <Label FontSize="12" Text="{Binding Description}" />
+
+            <Entry Placeholder="Spool / carrier" Text="{Binding SpoolCarrier}" />
+            <Entry Placeholder="Total weight (g)" Text="{Binding TotalWeight}" />
+            <Entry Placeholder="Empty spool weight (g)" Text="{Binding EmptySpoolWeight}" />
+            <Editor AutoSize="TextChanges" Placeholder="Notes" Text="{Binding Notes}" />
+
+            <Button Command="{Binding SaveCommand}" Text="Save" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

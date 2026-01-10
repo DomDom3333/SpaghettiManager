@@ -6,11 +6,11 @@ public partial class AppShell : Shell
 {
     public AppShell()
     {
-        this.InitializeComponent();
-        Routing.RegisterRoute("main", typeof(MainPage));
-        Routing.RegisterRoute("inventory", typeof(InventoryListPage));
-        Routing.RegisterRoute("catalog", typeof(CatalogHomePage));
-        Routing.RegisterRoute("scan", typeof(ScanPage));
-        Routing.RegisterRoute("settings", typeof(SettingsPage));
+        InitializeComponent();
+        Routing.RegisterRoute("inventory/detail", typeof(InventoryDetailPage));
+        Routing.RegisterRoute("inventory/action", typeof(InventoryActionPage));
+        Routing.RegisterRoute("scan/review", typeof(ScanReviewPage));
+        Routing.RegisterRoute("catalog/section", typeof(CatalogSectionPage));
+        Routing.RegisterRoute("catalog/ean-mappings", typeof(CatalogEanMappingsPage));
     }
 }

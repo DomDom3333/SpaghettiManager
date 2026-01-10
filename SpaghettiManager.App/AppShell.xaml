@@ -11,27 +11,27 @@
     <TabBar>
         <ShellContent
             ContentTemplate="{DataTemplate pages:MainPage}"
-            Route="MainPage"
-            Title="Main Page" />
+            Route="home"
+            Title="Home" />
 
         <ShellContent
             ContentTemplate="{DataTemplate pages:InventoryListPage}"
-            Icon="tab_inventory.png"
+            Route="inventory"
             Title="Inventory" />
 
         <ShellContent
             ContentTemplate="{DataTemplate pages:ScanPage}"
-            Icon="tab_scan.png"
+            Route="scan"
             Title="Scan" />
 
         <ShellContent
             ContentTemplate="{DataTemplate pages:CatalogHomePage}"
-            Icon="tab_catalog.png"
+            Route="catalog"
             Title="Catalog" />
 
         <ShellContent
             ContentTemplate="{DataTemplate pages:SettingsPage}"
-            Icon="tab_settings.png"
+            Route="settings"
             Title="Settings" />
 
     </TabBar>

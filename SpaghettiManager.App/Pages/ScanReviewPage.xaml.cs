@@ -3,9 +3,9 @@ using UraniumUI.Pages;
 
 namespace SpaghettiManager.App.Pages;
 
-public partial class ScanPage : UraniumContentPage
+public partial class ScanReviewPage : UraniumContentPage
 {
-    public ScanPage(ScanPageViewModel viewModel)
+    public ScanReviewPage(ScanReviewViewModel viewModel)
     {
         InitializeComponent();
         BindingContext = viewModel;
