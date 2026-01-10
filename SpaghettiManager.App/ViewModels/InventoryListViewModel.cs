@@ -3,6 +3,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
+using SpaghettiManager.App.Services;
+using SpaghettiManager.Model;
 
 namespace SpaghettiManager.App.ViewModels;
 
@@ -36,15 +38,18 @@ public partial class InventoryListViewModel : ObservableObject, IQueryAttributab
     [ObservableProperty]
     private string filterDescription = "All inventory";
 
-    public InventoryListViewModel()
+    private readonly InventoryDataService inventoryData;
+
+    public InventoryListViewModel(InventoryDataService inventoryData)
     {
+        this.inventoryData = inventoryData;
         Filters.Add(new FilterChip { Label = "All", QueryValue = "all" });
         Filters.Add(new FilterChip { Label = "Low", QueryValue = "low" });
         Filters.Add(new FilterChip { Label = "Unknown", QueryValue = "unknown" });
         Filters.Add(new FilterChip { Label = "In use", QueryValue = "in-use" });
         Filters.Add(new FilterChip { Label = "Recent", QueryValue = "recent" });
 
-        RefreshItems();
+        _ = RefreshItemsAsync();
     }
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
@@ -73,9 +78,15 @@ public partial class InventoryListViewModel : ObservableObject, IQueryAttributab
     }
 
     [RelayCommand]
-    private Task MarkEmptyAsync(InventoryItemSummary item)
+    private async Task MarkEmptyAsync(InventoryItemSummary item)
     {
-        return Task.CompletedTask;
+        if (item == null)
+        {
+            return;
+        }
+
+        await inventoryData.MarkEmptyAsync(item.Id);
+        await RefreshItemsAsync();
     }
 
     [RelayCommand]
@@ -115,6 +126,7 @@ public partial class InventoryListViewModel : ObservableObject, IQueryAttributab
             "manufacturer" => "Manufacturer",
             "status" => "Status",
             "favorite" => "Favorite",
+            "dry" => "Needs drying",
             _ => "All"
         };
 
@@ -128,47 +140,79 @@ public partial class InventoryListViewModel : ObservableObject, IQueryAttributab
             "manufacturer" => "Grouped by manufacturer",
             "status" => "Grouped by status",
             "favorite" => "Favorite spools",
+            "dry" => "Needs drying",
             _ => "All inventory"
         };
 
-        RefreshItems();
+        _ = RefreshItemsAsync();
     }
 
-    private void RefreshItems()
+    private async Task RefreshItemsAsync()
     {
         Items.Clear();
-        Items.Add(new InventoryItemSummary
+        var items = await GetFilteredItemsAsync();
+        foreach (var item in items)
         {
-            Id = "INV-1001",
-            Manufacturer = "Prusament",
-            Material = "PLA",
-            ColorName = "Galaxy Black",
-            SwatchColor = Color.FromArgb("#1C1C1C"),
-            RemainingDisplay = "320 g",
-            Status = "In use",
-            IsAmsCompatible = true
-        });
-        Items.Add(new InventoryItemSummary
+            Items.Add(CreateSummary(item));
+        }
+    }
+
+    private async Task<IEnumerable<InventoryItemDto>> GetFilteredItemsAsync()
+    {
+        var items = await inventoryData.GetItemsAsync();
+        return ActiveFilter switch
         {
-            Id = "INV-1002",
-            Manufacturer = "Overture",
-            Material = "PETG",
-            ColorName = "Fire Engine Red",
-            SwatchColor = Color.FromArgb("#C62828"),
-            RemainingDisplay = "Unknown",
-            Status = "Opened",
-            IsAmsCompatible = false
-        });
-        Items.Add(new InventoryItemSummary
+            "Low" => items.Where(item => item.RemainingGrams is > 0 and < 200),
+            "Unknown" => items.Where(item => !item.RemainingGrams.HasValue),
+            "In use" => items.Where(item => item.Status == Enums.InventoryStatus.InUse),
+            "Recent" => items.Where(item => item.CreatedAt >= DateTime.Today.AddDays(-14)),
+            "Needs drying" => items.Where(item =>
+                item.Hygroscopicity >= Enums.Hygroscopicity.Medium
+                && item.LastDriedAt is not null
+                && item.LastDriedAt < DateTime.Today.AddDays(-30)),
+            _ => items
+        };
+    }
+
+    private static InventoryItemSummary CreateSummary(InventoryItemDto item)
+    {
+        var remaining = item.RemainingGrams;
+        var color = ToMauiColor(item.ColorHex, Colors.Gray);
+
+        return new InventoryItemSummary
         {
-            Id = "INV-1003",
-            Manufacturer = "Polymaker",
-            Material = "TPU",
-            ColorName = "Clear",
-            SwatchColor = Color.FromArgb("#E0E0E0"),
-            RemainingDisplay = "150 g",
-            Status = "Sealed",
-            IsAmsCompatible = true
-        });
+            Id = item.Id,
+            Manufacturer = item.Manufacturer,
+            Material = item.MaterialName,
+            ColorName = item.ColorName,
+            SwatchColor = color,
+            RemainingDisplay = remaining.HasValue ? $"{remaining.Value} g" : "Unknown",
+            Status = GetStatusLabel(item.Status),
+            IsAmsCompatible = IsAmsCompatible(item)
+        };
+    }
+
+    private static string GetStatusLabel(Enums.InventoryStatus status)
+    {
+        return status switch
+        {
+            Enums.InventoryStatus.InUse => "In use",
+            Enums.InventoryStatus.Sealed => "Sealed",
+            Enums.InventoryStatus.Opened => "Opened",
+            Enums.InventoryStatus.Empty => "Empty",
+            Enums.InventoryStatus.Discarded => "Discarded",
+            _ => "Unknown"
+        };
+    }
+
+    private static Color ToMauiColor(string? colorHex, Color fallback)
+    {
+        return string.IsNullOrWhiteSpace(colorHex) ? fallback : Color.FromArgb(colorHex);
+    }
+
+    private static bool IsAmsCompatible(InventoryItemDto item)
+    {
+        var notes = item.CarrierNotes ?? string.Empty;
+        return notes.Contains("AMS", StringComparison.OrdinalIgnoreCase);
     }
 }

@@ -18,21 +18,30 @@
             </Frame>
 
             <Label FontAttributes="Bold" Text="Review details" />
-            <CollectionView ItemsSource="{Binding EditableFields}" SelectionMode="None">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="viewModels:ScanReviewViewModel+EditableField">
-                        <Frame Margin="0,4" Padding="12">
-                            <VerticalStackLayout Spacing="6">
-                                <Label FontAttributes="Bold" Text="{Binding Label}" />
-                                <Entry Text="{Binding Value}" />
-                                <Grid BackgroundColor="{Binding StateColor}" Padding="6">
-                                    <Label FontSize="10" Text="{Binding State}" />
-                                </Grid>
-                            </VerticalStackLayout>
-                        </Frame>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+            <Label FontSize="12" Text="Select from known options or fill in the missing fields." />
+
+            <Picker
+                ItemsSource="{Binding ManufacturerOptions}"
+                SelectedItem="{Binding Manufacturer}"
+                Title="Manufacturer" />
+            <Picker
+                ItemsSource="{Binding ProductLineOptions}"
+                SelectedItem="{Binding ProductLine}"
+                Title="Product line" />
+            <Picker
+                ItemsSource="{Binding MaterialOptions}"
+                SelectedItem="{Binding Material}"
+                Title="Material" />
+            <Picker
+                ItemsSource="{Binding ColorOptions}"
+                SelectedItem="{Binding ColorName}"
+                Title="Color" />
+            <Entry Placeholder="Batch / lot" Text="{Binding BatchLot}" />
+            <Picker
+                ItemsSource="{Binding CarrierOptions}"
+                SelectedItem="{Binding Carrier}"
+                Title="Spool / carrier" />
+            <Entry Keyboard="Numeric" Placeholder="Initial weight (g)" Text="{Binding InitialWeight}" />
 
             <HorizontalStackLayout Spacing="8">
                 <Label Text="Save EAN mapping" VerticalOptions="Center" />

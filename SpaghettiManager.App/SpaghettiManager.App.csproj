@@ -57,6 +57,7 @@
         <MauiAsset Include="appsettings.json" LogicalName="appsettings.json"/>
         <MauiAsset Include="appsettings.android.json" LogicalName="appsettings.android.json"/>
         <MauiAsset Include="appsettings.apple.json" LogicalName="appsettings.apple.json"/>
+        <MauiAsset Include="..\SpaghettiManager.Model\Data\Manufacturers.json" LogicalName="Data/Manufacturers.json"/>
 
         <Content Remove="**\appsettings.json"/>
         <Content Remove="**\appsettings.*.json"/>
@@ -71,6 +72,8 @@
 
         <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)"/>
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" Condition="'$(Configuration)' == 'Debug'"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0-preview.4.25258.110" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.0-preview.4.25258.110" />
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0"/>
         <PackageReference Include="CommunityToolkit.Maui" Version="13.0.0"/>
         <PackageReference Include="CommunityToolkit.Maui.Markup" Version="7.0.0"/>
@@ -179,6 +182,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\SpaghettiManager.Model\SpaghettiManager.Model.csproj" />
     </ItemGroup>
 
 </Project>
