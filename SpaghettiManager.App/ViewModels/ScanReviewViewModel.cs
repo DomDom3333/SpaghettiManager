@@ -1,21 +1,15 @@
 ﻿using System.Collections.ObjectModel;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Controls;
-using Microsoft.Maui.Graphics;
+using SpaghettiManager.App.Services;
+using SpaghettiManager.Model;
 
 namespace SpaghettiManager.App.ViewModels;
 
 public partial class ScanReviewViewModel : ObservableObject, IQueryAttributable
 {
-    public class EditableField
-    {
-        public string Label { get; set; } = string.Empty;
-        public string Value { get; set; } = string.Empty;
-        public string State { get; set; } = string.Empty;
-        public Color StateColor { get; set; } = Colors.Transparent;
-    }
-
     [ObservableProperty]
     private string barcode = string.Empty;
 
@@ -28,7 +22,40 @@ public partial class ScanReviewViewModel : ObservableObject, IQueryAttributable
     [ObservableProperty]
     private bool saveEanMapping;
 
-    public ObservableCollection<EditableField> Fields { get; } = new();
+    [ObservableProperty]
+    private string manufacturer = string.Empty;
+
+    [ObservableProperty]
+    private string productLine = string.Empty;
+
+    [ObservableProperty]
+    private string material = string.Empty;
+
+    [ObservableProperty]
+    private string colorName = string.Empty;
+
+    [ObservableProperty]
+    private string batchLot = string.Empty;
+
+    [ObservableProperty]
+    private string carrier = string.Empty;
+
+    [ObservableProperty]
+    private string initialWeight = string.Empty;
+
+    public ObservableCollection<string> ManufacturerOptions { get; } = new();
+    public ObservableCollection<string> ProductLineOptions { get; } = new();
+    public ObservableCollection<string> MaterialOptions { get; } = new();
+    public ObservableCollection<string> ColorOptions { get; } = new();
+    public ObservableCollection<string> CarrierOptions { get; } = new();
+
+    private readonly InventoryDataService inventoryData;
+
+    public ScanReviewViewModel(InventoryDataService inventoryData)
+    {
+        this.inventoryData = inventoryData;
+        _ = LoadOptionsAsync();
+    }
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
@@ -37,7 +64,7 @@ public partial class ScanReviewViewModel : ObservableObject, IQueryAttributable
             Barcode = barcodeValue?.ToString() ?? string.Empty;
         }
 
-        LoadSample();
+        _ = LoadFromBarcodeAsync();
     }
 
     [RelayCommand]
@@ -52,46 +79,90 @@ public partial class ScanReviewViewModel : ObservableObject, IQueryAttributable
         return Shell.Current.GoToAsync("//catalog/ean-mappings");
     }
 
-    private void LoadSample()
+    private async Task LoadFromBarcodeAsync()
     {
-        SummaryTitle = "Overture PLA";
-        SummarySubtitle = "Fire Engine Red • 1.75 mm";
+        var entry = await inventoryData.GetCatalogEntryAsync(Barcode);
 
-        Fields.Clear();
-        Fields.Add(new EditableField
+        if (entry is null)
         {
-            Label = "Manufacturer",
-            Value = "Overture",
-            State = "Auto-filled",
-            StateColor = Color.FromArgb("#D0F0C0")
-        });
-        Fields.Add(new EditableField
+            SummaryTitle = "Unknown filament";
+            SummarySubtitle = "Review and complete details";
+            SaveEanMapping = true;
+
+            Manufacturer = ManufacturerOptions.FirstOrDefault() ?? string.Empty;
+            ProductLine = string.Empty;
+            Material = MaterialOptions.FirstOrDefault() ?? string.Empty;
+            ColorName = string.Empty;
+            BatchLot = string.Empty;
+            Carrier = CarrierOptions.FirstOrDefault() ?? string.Empty;
+            InitialWeight = string.Empty;
+            return;
+        }
+
+        SummaryTitle = $"{entry.Manufacturer} {entry.ProductLine}".Trim();
+        SummarySubtitle = $"{entry.ColorName} • {FormatDiameter(entry.Diameter)}";
+        SaveEanMapping = false;
+
+        Manufacturer = entry.Manufacturer;
+        ProductLine = entry.ProductLine;
+        Material = entry.MaterialName;
+        ColorName = entry.ColorName;
+        BatchLot = string.Empty;
+        Carrier = entry.CarrierLabel;
+        InitialWeight = entry.NominalWeightGrams?.ToString() ?? string.Empty;
+    }
+
+    private async Task LoadOptionsAsync()
+    {
+        var options = await inventoryData.GetOptionsAsync();
+        ManufacturerOptions.Clear();
+        foreach (var option in options.Manufacturers)
         {
-            Label = "Product line",
-            Value = "PLA Professional",
-            State = "Assumed",
-            StateColor = Color.FromArgb("#FFF4C2")
-        });
-        Fields.Add(new EditableField
+            ManufacturerOptions.Add(option);
+        }
+
+        ProductLineOptions.Clear();
+        foreach (var option in options.ProductLines)
         {
-            Label = "Batch / lot",
-            Value = string.Empty,
-            State = "Required",
-            StateColor = Color.FromArgb("#FFD6D6")
-        });
-        Fields.Add(new EditableField
+            ProductLineOptions.Add(option);
+        }
+
+        MaterialOptions.Clear();
+        foreach (var option in options.Materials)
         {
-            Label = "Spool / carrier",
-            Value = "Overture plastic spool",
-            State = "Auto-filled",
-            StateColor = Color.FromArgb("#D0F0C0")
-        });
-        Fields.Add(new EditableField
+            MaterialOptions.Add(option);
+        }
+
+        ColorOptions.Clear();
+        foreach (var option in options.Colors)
         {
-            Label = "Initial weight (g)",
-            Value = "1000",
-            State = "Auto-filled",
-            StateColor = Color.FromArgb("#D0F0C0")
-        });
+            ColorOptions.Add(option);
+        }
+
+        CarrierOptions.Clear();
+        foreach (var option in options.Carriers)
+        {
+            CarrierOptions.Add(option);
+        }
+
+        if (string.IsNullOrWhiteSpace(Barcode))
+        {
+            Manufacturer = ManufacturerOptions.FirstOrDefault() ?? string.Empty;
+            Material = MaterialOptions.FirstOrDefault() ?? string.Empty;
+            Carrier = CarrierOptions.FirstOrDefault() ?? string.Empty;
+            return;
+        }
+
+        await LoadFromBarcodeAsync();
+    }
+
+    private static string FormatDiameter(Enums.FilamentDiameter diameter)
+    {
+        return diameter switch
+        {
+            Enums.FilamentDiameter.Mm175 => "1.75 mm",
+            Enums.FilamentDiameter.Mm285 => "2.85 mm",
+            _ => "Unknown diameter"
+        };
     }
 }

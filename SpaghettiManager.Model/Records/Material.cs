@@ -1,6 +1,6 @@
 ﻿namespace SpaghettiManager.Model.Records;
 
-public record MaterialDefinition
+public record MaterialDefinition : BaseEntity
 {
     public string Name { get; init; } = "";           // e.g. "PLA Basic", "ASA", "PA6-CF"
     public string? Notes { get; init; }               // free text, e.g. “Prints best on textured PEI”

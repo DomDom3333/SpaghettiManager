@@ -1,6 +1,6 @@
 ﻿namespace SpaghettiManager.Model.Records;
 
-public record FilamentWinding
+public record FilamentWinding : BaseEntity
 {
     public FilamentLot Lot { get; init; } = new();
     public Carrier Carrier { get; init; } = new() { Kind = Enums.CarrierKind.Spool };

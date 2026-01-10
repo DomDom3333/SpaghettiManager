@@ -1,6 +1,6 @@
 ﻿namespace SpaghettiManager.Model.Records;
 
-public record Carrier
+public record Carrier : BaseEntity
 {
     public Enums.CarrierKind Kind { get; init; } = Enums.CarrierKind.Unknown;
 

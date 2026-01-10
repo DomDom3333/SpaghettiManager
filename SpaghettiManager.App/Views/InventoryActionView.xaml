@@ -12,9 +12,31 @@
             <Label FontAttributes="Bold" FontSize="20" Text="{Binding Title}" />
             <Label FontSize="12" Text="{Binding Description}" />
 
-            <Entry Placeholder="Spool / carrier" Text="{Binding SpoolCarrier}" />
-            <Entry Placeholder="Total weight (g)" Text="{Binding TotalWeight}" />
-            <Entry Placeholder="Empty spool weight (g)" Text="{Binding EmptySpoolWeight}" />
+            <VerticalStackLayout IsVisible="{Binding ShowCatalogFields}" Spacing="12">
+                <Picker
+                    ItemsSource="{Binding ManufacturerOptions}"
+                    SelectedItem="{Binding Manufacturer}"
+                    Title="Manufacturer" />
+                <Picker
+                    ItemsSource="{Binding ProductLineOptions}"
+                    SelectedItem="{Binding ProductLine}"
+                    Title="Product line" />
+                <Picker
+                    ItemsSource="{Binding MaterialOptions}"
+                    SelectedItem="{Binding Material}"
+                    Title="Material" />
+                <Picker
+                    ItemsSource="{Binding ColorOptions}"
+                    SelectedItem="{Binding ColorName}"
+                    Title="Color" />
+            </VerticalStackLayout>
+
+            <Picker
+                ItemsSource="{Binding CarrierOptions}"
+                SelectedItem="{Binding SpoolCarrier}"
+                Title="Spool / carrier" />
+            <Entry Keyboard="Numeric" Placeholder="Total weight (g)" Text="{Binding TotalWeight}" />
+            <Entry Keyboard="Numeric" Placeholder="Empty spool weight (g)" Text="{Binding EmptySpoolWeight}" />
             <Editor AutoSize="TextChanges" Placeholder="Notes" Text="{Binding Notes}" />
 
             <Button Command="{Binding SaveCommand}" Text="Save" />

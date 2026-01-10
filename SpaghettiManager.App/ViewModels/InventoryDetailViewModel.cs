@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Controls;
+using SpaghettiManager.App.Services;
+using SpaghettiManager.Model;
 
 namespace SpaghettiManager.App.ViewModels;
 
@@ -39,6 +41,13 @@ public partial class InventoryDetailViewModel : ObservableObject, IQueryAttribut
     [ObservableProperty]
     private string notes = string.Empty;
 
+    private readonly InventoryDataService inventoryData;
+
+    public InventoryDetailViewModel(InventoryDataService inventoryData)
+    {
+        this.inventoryData = inventoryData;
+    }
+
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
         if (query.TryGetValue("itemId", out var idValue))
@@ -46,7 +55,7 @@ public partial class InventoryDetailViewModel : ObservableObject, IQueryAttribut
             ItemId = idValue?.ToString() ?? string.Empty;
         }
 
-        LoadSample();
+        _ = LoadItemAsync(ItemId);
     }
 
     [RelayCommand]
@@ -62,22 +71,57 @@ public partial class InventoryDetailViewModel : ObservableObject, IQueryAttribut
     }
 
     [RelayCommand]
-    private Task MarkEmptyAsync()
+    private async Task MarkEmptyAsync()
     {
-        return Task.CompletedTask;
+        await inventoryData.MarkEmptyAsync(ItemId);
+        await LoadItemAsync(ItemId);
     }
 
-    private void LoadSample()
+    private async Task LoadItemAsync(string? id)
     {
-        Manufacturer = "Prusament";
-        Material = "PLA";
-        ColorName = "Galaxy Black";
-        Status = "In use";
-        RemainingGrams = "320";
-        SpoolCarrier = "Prusa spool (plastic)";
-        OpenedDate = "2024-02-01";
-        LastWeighedDate = "2024-02-12";
-        LastDriedDate = "2024-01-15";
-        Notes = "Keep in dry box after use.";
+        var item = await inventoryData.GetItemByIdAsync(id);
+        if (item is null)
+        {
+            Manufacturer = "Unknown";
+            Material = "Unknown";
+            ColorName = "";
+            Status = "Unknown";
+            RemainingGrams = "Unknown";
+            SpoolCarrier = "";
+            OpenedDate = "";
+            LastWeighedDate = "";
+            LastDriedDate = "";
+            Notes = "";
+            return;
+        }
+
+        Manufacturer = item.Manufacturer;
+        Material = item.MaterialName;
+        ColorName = item.ColorName;
+        Status = GetStatusLabel(item.Status);
+        RemainingGrams = item.RemainingGrams?.ToString() ?? "Unknown";
+        SpoolCarrier = item.CarrierLabel;
+        OpenedDate = FormatDate(item.OpenedDate);
+        LastWeighedDate = FormatDate(item.LastMeasuredAt);
+        LastDriedDate = FormatDate(item.LastDriedAt);
+        Notes = item.Notes ?? string.Empty;
+    }
+
+    private static string FormatDate(DateTime? date)
+    {
+        return date?.ToString("yyyy-MM-dd") ?? "";
+    }
+
+    private static string GetStatusLabel(Enums.InventoryStatus status)
+    {
+        return status switch
+        {
+            Enums.InventoryStatus.InUse => "In use",
+            Enums.InventoryStatus.Sealed => "Sealed",
+            Enums.InventoryStatus.Opened => "Opened",
+            Enums.InventoryStatus.Empty => "Empty",
+            Enums.InventoryStatus.Discarded => "Discarded",
+            _ => "Unknown"
+        };
     }
 }

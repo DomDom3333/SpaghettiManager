@@ -2,7 +2,7 @@
 
 namespace SpaghettiManager.Model.Records;
 
-public record FilamentLot
+public record FilamentLot : BaseEntity
 {
     public string Manufacturer { get; init; } = "";     // e.g. "Elegoo"
     public string ProductLine { get; init; } = "";      // e.g. "Rapid PLA+", "PLA Basic"
