@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Controls;
 using SpaghettiManager.App.Services;
 using SpaghettiManager.Model;
+using SpaghettiManager.Model.Records;
 
 namespace SpaghettiManager.App.ViewModels;
 
@@ -99,17 +100,17 @@ public partial class ScanReviewViewModel : ObservableObject, IQueryAttributable
             return;
         }
 
-        SummaryTitle = $"{entry.Manufacturer} {entry.ProductLine}".Trim();
-        SummarySubtitle = $"{entry.ColorName} • {FormatDiameter(entry.Diameter)}";
+        SummaryTitle = $"{InventoryFormatting.GetManufacturer(entry)} {InventoryFormatting.GetProductLine(entry)}".Trim();
+        SummarySubtitle = $"{InventoryFormatting.GetColorName(entry)} • {FormatDiameter(InventoryFormatting.GetDiameter(entry))}";
         SaveEanMapping = false;
 
-        Manufacturer = entry.Manufacturer;
-        ProductLine = entry.ProductLine;
-        Material = entry.MaterialName;
-        ColorName = entry.ColorName;
+        Manufacturer = InventoryFormatting.GetManufacturer(entry);
+        ProductLine = InventoryFormatting.GetProductLine(entry);
+        Material = InventoryFormatting.GetMaterialName(entry);
+        ColorName = InventoryFormatting.GetColorName(entry);
         BatchLot = string.Empty;
-        Carrier = entry.CarrierLabel;
-        InitialWeight = entry.NominalWeightGrams?.ToString() ?? string.Empty;
+        Carrier = InventoryFormatting.GetCarrierLabel(entry);
+        InitialWeight = entry.DefaultNetWeightGrams.ToString();
     }
 
     private async Task LoadOptionsAsync()

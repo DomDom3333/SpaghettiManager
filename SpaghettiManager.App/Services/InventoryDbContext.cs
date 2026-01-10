@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using SpaghettiManager.App.Services.Entities;
 using SpaghettiManager.Model.Records;
 
 namespace SpaghettiManager.App.Services;
@@ -28,8 +27,34 @@ public class InventoryDbContext : DbContext
         modelBuilder.Entity<Item>()
             .HasKey(item => item.Id);
 
+        modelBuilder.Entity<Item>()
+            .OwnsOne(item => item.Winding, winding =>
+            {
+                winding.OwnsOne(value => value.Lot, lot =>
+                {
+                    lot.OwnsOne(value => value.Material);
+                });
+
+                winding.OwnsOne(value => value.Carrier, carrier =>
+                {
+                    carrier.OwnsOne(value => value.Spool);
+                });
+            });
+
         modelBuilder.Entity<CatalogItem>()
             .HasKey(entry => entry.Barcode);
+
+        modelBuilder.Entity<CatalogItem>()
+            .OwnsOne(entry => entry.TemplateLot, lot =>
+            {
+                lot.OwnsOne(value => value.Material);
+            });
+
+        modelBuilder.Entity<CatalogItem>()
+            .OwnsOne(entry => entry.DefaultCarrier, carrier =>
+            {
+                carrier.OwnsOne(value => value.Spool);
+            });
 
         modelBuilder.Entity<Manufacturer>()
             .HasKey(manufacturer => manufacturer.Id);
