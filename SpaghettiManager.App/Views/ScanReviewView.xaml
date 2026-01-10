@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="SpaghettiManager.App.Views.ScanReviewView"
+    x:DataType="viewModels:ScanReviewViewModel"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+    xmlns:viewModels="clr-namespace:SpaghettiManager.App.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+            <Frame BackgroundColor="{DynamicResource SecondaryContainer}" Padding="12">
+                <VerticalStackLayout Spacing="4">
+                    <Label FontAttributes="Bold" Text="{Binding SummaryTitle}" />
+                    <Label FontSize="12" Text="{Binding SummarySubtitle}" />
+                    <Label FontSize="10" Text="Barcode: {Binding Barcode}" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Label FontAttributes="Bold" Text="Review details" />
+            <CollectionView ItemsSource="{Binding EditableFields}" SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="viewModels:ScanReviewViewModel+EditableField">
+                        <Frame Margin="0,4" Padding="12">
+                            <VerticalStackLayout Spacing="6">
+                                <Label FontAttributes="Bold" Text="{Binding Label}" />
+                                <Entry Text="{Binding Value}" />
+                                <Grid BackgroundColor="{Binding StateColor}" Padding="6">
+                                    <Label FontSize="10" Text="{Binding State}" />
+                                </Grid>
+                            </VerticalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <HorizontalStackLayout Spacing="8">
+                <Label Text="Save EAN mapping" VerticalOptions="Center" />
+                <Switch IsToggled="{Binding SaveEanMapping}" />
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout Spacing="8">
+                <Button Command="{Binding AddToInventoryCommand}" Text="Add to inventory" />
+                <Button Command="{Binding EditCatalogCommand}" Text="Edit catalog" />
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

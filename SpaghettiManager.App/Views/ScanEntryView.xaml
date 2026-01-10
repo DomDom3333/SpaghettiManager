@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="SpaghettiManager.App.Views.ScanEntryView"
+    x:DataType="viewModels:ScanPageViewModel"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+    xmlns:viewModels="clr-namespace:SpaghettiManager.App.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <VerticalStackLayout Padding="16" Spacing="16">
+        <Label FontAttributes="Bold" Text="Scan a barcode" />
+        <Frame
+            BackgroundColor="{DynamicResource SecondaryContainer}"
+            HeightRequest="220"
+            Padding="0">
+            <Grid>
+                <Label
+                    HorizontalOptions="Center"
+                    Text="Camera preview"
+                    VerticalOptions="Center" />
+                <Label
+                    FontSize="12"
+                    HorizontalOptions="Center"
+                    IsVisible="{Binding IsScanning}"
+                    Text="Scanning active"
+                    TextColor="{DynamicResource Primary}"
+                    VerticalOptions="End" />
+            </Grid>
+        </Frame>
+
+        <Entry Placeholder="Barcode" Text="{Binding Barcode}" />
+
+        <HorizontalStackLayout Spacing="8">
+            <Button Command="{Binding ToggleScanningCommand}" Text="Start / stop scan" />
+            <Button Command="{Binding SimulateScanCommand}" Text="Simulate scan" />
+        </HorizontalStackLayout>
+
+        <Button Command="{Binding ReviewCommand}" Text="Review &amp; confirm" />
+    </VerticalStackLayout>
+</ContentView>

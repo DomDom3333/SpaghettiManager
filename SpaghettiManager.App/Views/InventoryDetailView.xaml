@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="SpaghettiManager.App.Views.InventoryDetailView"
+    x:DataType="viewModels:InventoryDetailViewModel"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+    xmlns:viewModels="clr-namespace:SpaghettiManager.App.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+            <Label FontAttributes="Bold" Text="Overview" />
+            <Grid
+                ColumnDefinitions="*,*"
+                ColumnSpacing="12"
+                RowDefinitions="Auto,Auto,Auto"
+                RowSpacing="8">
+                <Entry
+                    Grid.Column="0"
+                    Grid.Row="0"
+                    Placeholder="Manufacturer"
+                    Text="{Binding Manufacturer}" />
+                <Entry
+                    Grid.Column="1"
+                    Grid.Row="0"
+                    Placeholder="Material"
+                    Text="{Binding Material}" />
+                <Entry
+                    Grid.Column="0"
+                    Grid.Row="1"
+                    Placeholder="Color"
+                    Text="{Binding ColorName}" />
+                <Entry
+                    Grid.Column="1"
+                    Grid.Row="1"
+                    Placeholder="Status"
+                    Text="{Binding Status}" />
+                <Entry
+                    Grid.Column="0"
+                    Grid.Row="2"
+                    Placeholder="Remaining (g)"
+                    Text="{Binding RemainingGrams}" />
+                <Entry
+                    Grid.Column="1"
+                    Grid.Row="2"
+                    Placeholder="Carrier / spool"
+                    Text="{Binding SpoolCarrier}" />
+            </Grid>
+
+            <Label FontAttributes="Bold" Text="Usage &amp; history" />
+            <Grid
+                ColumnDefinitions="*,*"
+                ColumnSpacing="12"
+                RowDefinitions="Auto,Auto,Auto"
+                RowSpacing="8">
+                <Entry
+                    Grid.Column="0"
+                    Grid.Row="0"
+                    Placeholder="Opened"
+                    Text="{Binding OpenedDate}" />
+                <Entry
+                    Grid.Column="1"
+                    Grid.Row="0"
+                    Placeholder="Last weighed"
+                    Text="{Binding LastWeighedDate}" />
+                <Entry
+                    Grid.Column="0"
+                    Grid.Row="1"
+                    Placeholder="Last dried"
+                    Text="{Binding LastDriedDate}" />
+            </Grid>
+
+            <Label FontAttributes="Bold" Text="Notes" />
+            <Editor
+                AutoSize="TextChanges"
+                Placeholder="Notes"
+                Text="{Binding Notes}" />
+
+            <Label FontAttributes="Bold" Text="Actions" />
+            <HorizontalStackLayout Spacing="8">
+                <Button Command="{Binding RespoolCommand}" Text="Respool" />
+                <Button Command="{Binding WeighNowCommand}" Text="Weigh now" />
+                <Button Command="{Binding MarkEmptyCommand}" Text="Mark empty" />
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

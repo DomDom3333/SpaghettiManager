@@ -2,18 +2,18 @@
 <ContentView
     x:Class="SpaghettiManager.App.Views.HomeDashboardView"
     x:DataType="viewModels:HomePageViewModel"
+    x:Name="Root"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
     xmlns:viewModels="clr-namespace:SpaghettiManager.App.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
     <ScrollView>
-        <VerticalStackLayout Padding="16" Spacing="16">
+        <VerticalStackLayout Padding="16" Spacing="20">
             <!--  Summary Strip  -->
             <Grid
                 BackgroundColor="{DynamicResource SecondaryContainer}"
                 ColumnDefinitions="*,*,*,*"
-                Padding="8"
+                Padding="12"
                 RowDefinitions="Auto">
                 <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center">
                     <Label FontAttributes="Bold" Text="Items" />
@@ -36,15 +36,23 @@
             <!--  Alerts / To-Dos  -->
             <VerticalStackLayout Spacing="8">
                 <Label FontAttributes="Bold" Text="Alerts" />
-                <CollectionView ItemsSource="{Binding Alerts}">
+                <CollectionView ItemsSource="{Binding Alerts}" SelectionMode="None">
                     <CollectionView.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="viewModels:HomePageViewModel+AlertItem">
                             <Frame
                                 BackgroundColor="{DynamicResource ErrorContainer}"
                                 Margin="0,4"
                                 Padding="12">
-                                <Grid>
-                                    <Label Text="{Binding Title}" />
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label FontAttributes="Bold" Text="{Binding Title}" />
+                                        <Label FontSize="12" Text="{Binding Description}" />
+                                    </VerticalStackLayout>
+                                    <Button
+                                        Command="{Binding Source={x:Reference Root}, Path=BindingContext.OpenAlertCommand}"
+                                        CommandParameter="{Binding .}"
+                                        Grid.Column="1"
+                                        Text="Resolve" />
                                 </Grid>
                             </Frame>
                         </DataTemplate>
@@ -84,16 +92,52 @@
                 <Button Command="{Binding EditEanMappingsCommand}" Text="Edit EAN mappings" />
             </VerticalStackLayout>
 
-            <!--  Inventory Highlights (placeholder)  -->
+            <!--  Inventory Highlights  -->
             <VerticalStackLayout Spacing="8">
                 <Label FontAttributes="Bold" Text="Highlights" />
-                <Label FontAttributes="Italic" Text="Recently added, In use, Favorites… (coming soon)" />
+                <CollectionView ItemsSource="{Binding Highlights}" SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="viewModels:HomePageViewModel+HighlightItem">
+                            <Frame Margin="0,4" Padding="12">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label FontAttributes="Bold" Text="{Binding Title}" />
+                                        <Label FontSize="12" Text="{Binding Subtitle}" />
+                                    </VerticalStackLayout>
+                                    <Button
+                                        Command="{Binding Source={x:Reference Root}, Path=BindingContext.OpenHighlightCommand}"
+                                        CommandParameter="{Binding .}"
+                                        Grid.Column="1"
+                                        Text="View" />
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
             </VerticalStackLayout>
 
-            <!--  Stats / Insights (placeholder)  -->
+            <!--  Stats / Insights  -->
             <VerticalStackLayout Spacing="8">
                 <Label FontAttributes="Bold" Text="Stats / Insights" />
-                <Label FontAttributes="Italic" Text="Material, Manufacturer, Status breakdown… (coming soon)" />
+                <CollectionView ItemsSource="{Binding Stats}" SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="viewModels:HomePageViewModel+StatItem">
+                            <Frame Margin="0,4" Padding="12">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label FontAttributes="Bold" Text="{Binding Title}" />
+                                        <Label FontSize="12" Text="{Binding Value}" />
+                                    </VerticalStackLayout>
+                                    <Button
+                                        Command="{Binding Source={x:Reference Root}, Path=BindingContext.OpenStatCommand}"
+                                        CommandParameter="{Binding .}"
+                                        Grid.Column="1"
+                                        Text="Filter" />
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
             </VerticalStackLayout>
         </VerticalStackLayout>
     </ScrollView>

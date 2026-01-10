@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="SpaghettiManager.App.Views.CatalogEanMappingsView"
+    x:DataType="viewModels:CatalogEanMappingsViewModel"
+    x:Name="Root"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:viewModels="clr-namespace:SpaghettiManager.App.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+            <HorizontalStackLayout Spacing="8">
+                <Label FontAttributes="Bold" Text="EAN mappings" />
+                <Button Command="{Binding AddMappingCommand}" Text="Add mapping" />
+            </HorizontalStackLayout>
+
+            <CollectionView ItemsSource="{Binding Mappings}" SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <!--  Use '+' for nested types in x:DataType  -->
+                    <DataTemplate x:DataType="viewModels:CatalogEanMappingsViewModel+EanMappingItem">
+                        <Border
+                            Margin="0,4"
+                            Padding="12"
+                            StrokeThickness="0">
+                            <VerticalStackLayout Spacing="6">
+                                <Label FontAttributes="Bold" Text="{Binding Ean}" />
+                                <Label FontSize="12" Text="{Binding Manufacturer}" />
+                                <Label FontSize="12" Text="{Binding ProductLine}" />
+                                <Label FontSize="12" Text="{Binding Diameter}" />
+                                <Label FontSize="12" Text="{Binding DefaultSpool}" />
+                                <HorizontalStackLayout Spacing="8">
+                                    <Button
+                                        Command="{Binding Source={x:Reference Root}, Path=BindingContext.EditMappingCommand}"
+                                        CommandParameter="{Binding .}"
+                                        Text="Edit" />
+                                    <Button
+                                        Command="{Binding Source={x:Reference Root}, Path=BindingContext.MergeMappingCommand}"
+                                        CommandParameter="{Binding .}"
+                                        Text="Merge" />
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>
