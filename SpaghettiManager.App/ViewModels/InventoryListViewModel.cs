@@ -159,7 +159,7 @@ public partial class InventoryListViewModel : ObservableObject, IQueryAttributab
 
     private async Task<IEnumerable<InventoryItemDto>> GetFilteredItemsAsync()
     {
-        var items = await inventoryData.GetItemsAsync();
+        IReadOnlyList<InventoryItemDto> items = await inventoryData.GetItemsAsync();
         return ActiveFilter switch
         {
             "Low" => items.Where(item => item.RemainingGrams is > 0 and < 200),

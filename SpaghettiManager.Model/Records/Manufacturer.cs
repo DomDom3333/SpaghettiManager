@@ -1,8 +1,9 @@
+using SpaghettiManager.Model;
+
 namespace SpaghettiManager.App.Services.Entities;
 
-public class ManufacturerEntity
+public record Manufacturer : BaseEntity
 {
-    public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public string? Country { get; set; }
     public string? Website { get; set; }

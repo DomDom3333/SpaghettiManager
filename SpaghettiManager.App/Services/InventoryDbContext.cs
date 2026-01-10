@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SpaghettiManager.App.Services.Entities;
+using SpaghettiManager.Model.Records;
 
 namespace SpaghettiManager.App.Services;
 
@@ -12,9 +13,9 @@ public class InventoryDbContext : DbContext
         this.platform = platform;
     }
 
-    public DbSet<InventoryItemEntity> InventoryItems => Set<InventoryItemEntity>();
-    public DbSet<CatalogEntryEntity> CatalogEntries => Set<CatalogEntryEntity>();
-    public DbSet<ManufacturerEntity> Manufacturers => Set<ManufacturerEntity>();
+    public DbSet<Item> InventoryItems => Set<Item>();
+    public DbSet<CatalogItem> CatalogEntries => Set<CatalogItem>();
+    public DbSet<Manufacturer> Manufacturers => Set<Manufacturer>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -24,13 +25,13 @@ public class InventoryDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<InventoryItemEntity>()
+        modelBuilder.Entity<Item>()
             .HasKey(item => item.Id);
 
-        modelBuilder.Entity<CatalogEntryEntity>()
+        modelBuilder.Entity<CatalogItem>()
             .HasKey(entry => entry.Barcode);
 
-        modelBuilder.Entity<ManufacturerEntity>()
+        modelBuilder.Entity<Manufacturer>()
             .HasKey(manufacturer => manufacturer.Id);
 
         base.OnModelCreating(modelBuilder);

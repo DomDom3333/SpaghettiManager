@@ -2,7 +2,7 @@
 
 namespace SpaghettiManager.Model.Records;
 
-public record Spool
+public record Spool : BaseEntity
 {
     public string Manufacturer { get; init; } = "";     // e.g. "Bambu", "Polymaker", or "Generic"
     public string Model { get; init; } = "";            // e.g. "Reusable Spool", "Cardboard 1kg"
