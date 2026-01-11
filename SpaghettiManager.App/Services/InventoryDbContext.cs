@@ -5,11 +5,11 @@ namespace SpaghettiManager.App.Services;
 
 public class InventoryDbContext : DbContext
 {
-    private readonly IPlatform platform;
+    private readonly IPlatform _platform;
 
     public InventoryDbContext(IPlatform platform)
     {
-        this.platform = platform;
+        this._platform = platform;
     }
 
     public DbSet<Item> InventoryItems => Set<Item>();
@@ -18,7 +18,7 @@ public class InventoryDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        var dbPath = Path.Combine(platform.AppData.FullName, "spaghetti.db");
+        var dbPath = Path.Combine(_platform.AppData.FullName, "spaghetti.db");
         optionsBuilder.UseSqlite($"Data Source={dbPath}");
     }
 
@@ -33,11 +33,17 @@ public class InventoryDbContext : DbContext
                 winding.OwnsOne(value => value.Lot, lot =>
                 {
                     lot.OwnsOne(value => value.Material);
+                    // Ignore unsupported System.Drawing.Color? property on FilamentLot
+                    lot.Ignore(l => l.ColorApprox);
                 });
 
                 winding.OwnsOne(value => value.Carrier, carrier =>
                 {
-                    carrier.OwnsOne(value => value.Spool);
+                    // Configure owned Spool and ignore unsupported Color? property
+                    carrier.OwnsOne(value => value.Spool, spool =>
+                    {
+                        spool.Ignore(s => s.SpoolColor);
+                    });
                 });
             });
 
@@ -48,12 +54,18 @@ public class InventoryDbContext : DbContext
             .OwnsOne(entry => entry.TemplateLot, lot =>
             {
                 lot.OwnsOne(value => value.Material);
+                // Ignore unsupported System.Drawing.Color? property on FilamentLot
+                lot.Ignore(l => l.ColorApprox);
             });
 
         modelBuilder.Entity<CatalogItem>()
             .OwnsOne(entry => entry.DefaultCarrier, carrier =>
             {
-                carrier.OwnsOne(value => value.Spool);
+                // Configure owned Spool and ignore unsupported Color? property
+                carrier.OwnsOne(value => value.Spool, spool =>
+                {
+                    spool.Ignore(s => s.SpoolColor);
+                });
             });
 
         modelBuilder.Entity<Manufacturer>()

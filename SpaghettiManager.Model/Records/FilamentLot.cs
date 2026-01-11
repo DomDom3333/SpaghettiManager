@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SpaghettiManager.Model.Records;
 
@@ -16,6 +17,7 @@ public record FilamentLot : BaseEntity
 
     // Visual / identification
     public string ColorName { get; init; } = "";        // "Black", "Jade White"
+    [NotMapped]
     public Color? ColorApprox { get; init; }            // optional UI convenience
     public Enums.Opacity Opacity { get; init; } = Enums.Opacity.Unknown;
     public Enums.Finish Finish { get; init; } = Enums.Finish.Unknown;

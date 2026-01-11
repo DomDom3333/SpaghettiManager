@@ -7,6 +7,8 @@ namespace SpaghettiManager.App.Services;
 
 public class InventoryDataService
 {
+    private const int SchemaVersion = 2; // bump when model changes requiring rebuild
+
     private readonly InventoryDbContext dbContext;
     private readonly ILogger<InventoryDataService> logger;
     private readonly Task initializationTask;
@@ -178,7 +180,36 @@ public class InventoryDataService
 
     private async Task InitializeAsync()
     {
-        await dbContext.Database.EnsureCreatedAsync();
+        try
+        {
+            var current = Preferences.Get("InventoryDb.SchemaVersion", 0);
+            if (current != SchemaVersion)
+            {
+                // Schema changed; rebuild the local database
+                await dbContext.Database.EnsureDeletedAsync();
+                await dbContext.Database.EnsureCreatedAsync();
+                Preferences.Set("InventoryDb.SchemaVersion", SchemaVersion);
+                return;
+            }
+
+            await dbContext.Database.EnsureCreatedAsync();
+        }
+        catch (Exception ex)
+        {
+            // If anything went wrong (e.g., schema drift), nuke and recreate once
+            try
+            {
+                await dbContext.Database.EnsureDeletedAsync();
+                await dbContext.Database.EnsureCreatedAsync();
+                Preferences.Set("InventoryDb.SchemaVersion", SchemaVersion);
+            }
+            catch (Exception inner)
+            {
+                // Last resort: log and rethrow the original
+                logger.LogError(inner, "Failed to rebuild database after initialization error: {Message}", ex.Message);
+                throw;
+            }
+        }
     }
 
     private async Task<IReadOnlyList<string>> GetManufacturerOptionsAsync()

@@ -1,6 +1,7 @@
 using System.Drawing;
 using SpaghettiManager.Model;
 using SpaghettiManager.Model.Records;
+using Color = System.Drawing.Color;
 
 namespace SpaghettiManager.App.Services;
 
