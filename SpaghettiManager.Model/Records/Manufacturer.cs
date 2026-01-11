@@ -1,6 +1,4 @@
-using SpaghettiManager.Model;
-
-namespace SpaghettiManager.App.Services.Entities;
+namespace SpaghettiManager.Model.Records;
 
 public record Manufacturer : BaseEntity
 {

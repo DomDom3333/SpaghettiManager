@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SpaghettiManager.App.Services;
 using SpaghettiManager.Model;
+using SpaghettiManager.Model.Records;
 
 namespace SpaghettiManager.App.ViewModels;
 
@@ -99,21 +100,21 @@ public partial class HomePageViewModel : ObservableObject
     {
         var items = await inventoryData.GetItemsAsync();
         var itemsWithRemaining = items
-            .Where(item => item.RemainingGrams.HasValue)
+            .Where(item => InventoryFormatting.GetRemainingGrams(item).HasValue)
             .ToList();
-        var unknownRemaining = items.Count(item => !item.RemainingGrams.HasValue);
+        var unknownRemaining = items.Count(item => !InventoryFormatting.GetRemainingGrams(item).HasValue);
 
         TotalItems = items.Count;
-        TotalRemainingGrams = itemsWithRemaining.Sum(item => item.RemainingGrams ?? 0);
+        TotalRemainingGrams = itemsWithRemaining.Sum(item => InventoryFormatting.GetRemainingGrams(item) ?? 0);
         UnknownRemainingCount = unknownRemaining;
-        ItemsInUseCount = items.Count(item => item.Status == Enums.InventoryStatus.InUse);
+        ItemsInUseCount = items.Count(item => InventoryFormatting.GetStatus(item) == Enums.InventoryStatus.InUse);
 
         var lowRemainingCount = items.Count(item =>
-            item.RemainingGrams is > 0 and < 200);
+            InventoryFormatting.GetRemainingGrams(item) is > 0 and < 200);
         var needsDryingCount = items.Count(item =>
-            item.Hygroscopicity >= Enums.Hygroscopicity.Medium
-            && item.LastDriedAt is not null
-            && item.LastDriedAt < DateTime.Today.AddDays(-30));
+            InventoryFormatting.GetHygroscopicity(item) >= Enums.Hygroscopicity.Medium
+            && InventoryFormatting.GetLastDriedAt(item) is not null
+            && InventoryFormatting.GetLastDriedAt(item) < DateTime.Today.AddDays(-30));
 
         Alerts.Clear();
         if (lowRemainingCount > 0)
@@ -148,7 +149,7 @@ public partial class HomePageViewModel : ObservableObject
 
         Highlights.Clear();
         var recentlyAddedCount = items.Count(item => item.CreatedAt >= DateTime.Today.AddDays(-14));
-        var inUseCount = items.Count(item => item.Status == Enums.InventoryStatus.InUse);
+        var inUseCount = items.Count(item => InventoryFormatting.GetStatus(item) == Enums.InventoryStatus.InUse);
 
         Highlights.Add(new HighlightItem
         {
@@ -165,7 +166,7 @@ public partial class HomePageViewModel : ObservableObject
         Highlights.Add(new HighlightItem
         {
             Title = "Material focus",
-            Subtitle = FormatGroup(items, item => item.MaterialName),
+            Subtitle = FormatGroup(items, item => InventoryFormatting.GetMaterialName(item)),
             TargetRoute = "///inventory?filter=material"
         });
 
@@ -173,19 +174,19 @@ public partial class HomePageViewModel : ObservableObject
         Stats.Add(new StatItem
         {
             Title = "By material",
-            Value = FormatGroup(items, item => item.MaterialName),
+            Value = FormatGroup(items, item => InventoryFormatting.GetMaterialName(item)),
             TargetRoute = "///inventory?filter=material"
         });
         Stats.Add(new StatItem
         {
             Title = "By manufacturer",
-            Value = FormatGroup(items, item => item.Manufacturer),
+            Value = FormatGroup(items, item => InventoryFormatting.GetManufacturer(item)),
             TargetRoute = "///inventory?filter=manufacturer"
         });
         Stats.Add(new StatItem
         {
             Title = "By status",
-            Value = FormatGroup(items, item => GetStatusLabel(item.Status)),
+            Value = FormatGroup(items, item => GetStatusLabel(InventoryFormatting.GetStatus(item))),
             TargetRoute = "///inventory?filter=status"
         });
     }
@@ -195,7 +196,7 @@ public partial class HomePageViewModel : ObservableObject
         return Task.CompletedTask;
     }
 
-    private static string FormatGroup(IEnumerable<InventoryItemDto> items, Func<InventoryItemDto, string> selector)
+    private static string FormatGroup(IEnumerable<Item> items, Func<Item, string> selector)
     {
         var groups = items
             .GroupBy(item => string.IsNullOrWhiteSpace(selector(item)) ? "Unknown" : selector(item))

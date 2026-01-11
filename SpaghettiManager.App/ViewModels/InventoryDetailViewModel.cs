@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Controls;
 using SpaghettiManager.App.Services;
 using SpaghettiManager.Model;
+using SpaghettiManager.Model.Records;
 
 namespace SpaghettiManager.App.ViewModels;
 
@@ -95,16 +96,16 @@ public partial class InventoryDetailViewModel : ObservableObject, IQueryAttribut
             return;
         }
 
-        Manufacturer = item.Manufacturer;
-        Material = item.MaterialName;
-        ColorName = item.ColorName;
-        Status = GetStatusLabel(item.Status);
-        RemainingGrams = item.RemainingGrams?.ToString() ?? "Unknown";
-        SpoolCarrier = item.CarrierLabel;
-        OpenedDate = FormatDate(item.OpenedDate);
-        LastWeighedDate = FormatDate(item.LastMeasuredAt);
-        LastDriedDate = FormatDate(item.LastDriedAt);
-        Notes = item.Notes ?? string.Empty;
+        Manufacturer = InventoryFormatting.GetManufacturer(item);
+        Material = InventoryFormatting.GetMaterialName(item);
+        ColorName = InventoryFormatting.GetColorName(item);
+        Status = GetStatusLabel(InventoryFormatting.GetStatus(item));
+        RemainingGrams = InventoryFormatting.GetRemainingGrams(item)?.ToString() ?? "Unknown";
+        SpoolCarrier = InventoryFormatting.GetCarrierLabel(item);
+        OpenedDate = FormatDate(InventoryFormatting.GetOpenedDate(item));
+        LastWeighedDate = FormatDate(InventoryFormatting.GetLastMeasuredAt(item));
+        LastDriedDate = FormatDate(InventoryFormatting.GetLastDriedAt(item));
+        Notes = item.Winding.Notes ?? string.Empty;
     }
 
     private static string FormatDate(DateTime? date)

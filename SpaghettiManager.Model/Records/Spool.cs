@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SpaghettiManager.Model.Records;
 
@@ -16,6 +17,7 @@ public record Spool : BaseEntity
     public int? InnerHubDiameterMm { get; init; }
 
     // If you want to track physical spool colors (not filament color)
+    [NotMapped]
     public Color? SpoolColor { get; init; }
 
     // Mass of empty spool (helps remaining calc)

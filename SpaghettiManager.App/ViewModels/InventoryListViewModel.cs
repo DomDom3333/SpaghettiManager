@@ -5,6 +5,7 @@ using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
 using SpaghettiManager.App.Services;
 using SpaghettiManager.Model;
+using SpaghettiManager.Model.Records;
 
 namespace SpaghettiManager.App.ViewModels;
 
@@ -157,37 +158,37 @@ public partial class InventoryListViewModel : ObservableObject, IQueryAttributab
         }
     }
 
-    private async Task<IEnumerable<InventoryItemDto>> GetFilteredItemsAsync()
+    private async Task<IEnumerable<Item>> GetFilteredItemsAsync()
     {
-        IReadOnlyList<InventoryItemDto> items = await inventoryData.GetItemsAsync();
+        IReadOnlyList<Item> items = await inventoryData.GetItemsAsync();
         return ActiveFilter switch
         {
-            "Low" => items.Where(item => item.RemainingGrams is > 0 and < 200),
-            "Unknown" => items.Where(item => !item.RemainingGrams.HasValue),
-            "In use" => items.Where(item => item.Status == Enums.InventoryStatus.InUse),
+            "Low" => items.Where(item => InventoryFormatting.GetRemainingGrams(item) is > 0 and < 200),
+            "Unknown" => items.Where(item => !InventoryFormatting.GetRemainingGrams(item).HasValue),
+            "In use" => items.Where(item => InventoryFormatting.GetStatus(item) == Enums.InventoryStatus.InUse),
             "Recent" => items.Where(item => item.CreatedAt >= DateTime.Today.AddDays(-14)),
             "Needs drying" => items.Where(item =>
-                item.Hygroscopicity >= Enums.Hygroscopicity.Medium
-                && item.LastDriedAt is not null
-                && item.LastDriedAt < DateTime.Today.AddDays(-30)),
+                InventoryFormatting.GetHygroscopicity(item) >= Enums.Hygroscopicity.Medium
+                && InventoryFormatting.GetLastDriedAt(item) is not null
+                && InventoryFormatting.GetLastDriedAt(item) < DateTime.Today.AddDays(-30)),
             _ => items
         };
     }
 
-    private static InventoryItemSummary CreateSummary(InventoryItemDto item)
+    private static InventoryItemSummary CreateSummary(Item item)
     {
-        var remaining = item.RemainingGrams;
-        var color = ToMauiColor(item.ColorHex, Colors.Gray);
+        var remaining = InventoryFormatting.GetRemainingGrams(item);
+        var color = ToMauiColor(InventoryFormatting.GetColorHex(item), Colors.Gray);
 
         return new InventoryItemSummary
         {
-            Id = item.Id,
-            Manufacturer = item.Manufacturer,
-            Material = item.MaterialName,
-            ColorName = item.ColorName,
+            Id = item.Id.ToString(),
+            Manufacturer = InventoryFormatting.GetManufacturer(item),
+            Material = InventoryFormatting.GetMaterialName(item),
+            ColorName = InventoryFormatting.GetColorName(item),
             SwatchColor = color,
             RemainingDisplay = remaining.HasValue ? $"{remaining.Value} g" : "Unknown",
-            Status = GetStatusLabel(item.Status),
+            Status = GetStatusLabel(InventoryFormatting.GetStatus(item)),
             IsAmsCompatible = IsAmsCompatible(item)
         };
     }
@@ -210,9 +211,9 @@ public partial class InventoryListViewModel : ObservableObject, IQueryAttributab
         return string.IsNullOrWhiteSpace(colorHex) ? fallback : Color.FromArgb(colorHex);
     }
 
-    private static bool IsAmsCompatible(InventoryItemDto item)
+    private static bool IsAmsCompatible(Item item)
     {
-        var notes = item.CarrierNotes ?? string.Empty;
+        var notes = InventoryFormatting.GetCarrierNotes(item);
         return notes.Contains("AMS", StringComparison.OrdinalIgnoreCase);
     }
 }
