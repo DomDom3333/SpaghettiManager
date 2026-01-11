@@ -28,16 +28,22 @@ public class InventoryDbContext : DbContext
             .HasKey(item => item.Id);
 
         modelBuilder.Entity<Item>()
-            .OwnsOne(item => item.Winding, winding =>
+            .HasOne(item => item.CatalogItem)
+            .WithMany()
+            .HasForeignKey(item => item.CatalogBarcode)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Item>()
+            .OwnsOne(item => item.Overrides, overrides =>
             {
-                winding.OwnsOne(value => value.Lot, lot =>
+                overrides.OwnsOne(value => value.Lot, lot =>
                 {
                     lot.OwnsOne(value => value.Material);
                     // Ignore unsupported System.Drawing.Color? property on FilamentLot
                     lot.Ignore(l => l.ColorApprox);
                 });
 
-                winding.OwnsOne(value => value.Carrier, carrier =>
+                overrides.OwnsOne(value => value.Carrier, carrier =>
                 {
                     // Configure owned Spool and ignore unsupported Color? property
                     carrier.OwnsOne(value => value.Spool, spool =>
@@ -46,6 +52,9 @@ public class InventoryDbContext : DbContext
                     });
                 });
             });
+
+        modelBuilder.Entity<Item>()
+            .OwnsOne(item => item.Winding);
 
         modelBuilder.Entity<CatalogItem>()
             .HasKey(entry => entry.Barcode);

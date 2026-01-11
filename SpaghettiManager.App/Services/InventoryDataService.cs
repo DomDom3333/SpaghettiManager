@@ -7,7 +7,7 @@ namespace SpaghettiManager.App.Services;
 
 public class InventoryDataService
 {
-    private const int SchemaVersion = 2; // bump when model changes requiring rebuild
+    private const int SchemaVersion = 3; // bump when model changes requiring rebuild
 
     private readonly InventoryDbContext dbContext;
     private readonly ILogger<InventoryDataService> logger;
@@ -27,6 +27,7 @@ public class InventoryDataService
     {
         await initializationTask;
         return await dbContext.InventoryItems
+            .Include(item => item.CatalogItem)
             .AsNoTracking()
             .OrderByDescending(item => item.CreatedAt)
             .ToListAsync();
@@ -43,11 +44,13 @@ public class InventoryDataService
         if (Guid.TryParse(id, out var guid))
         {
             return await dbContext.InventoryItems
+                .Include(item => item.CatalogItem)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(item => item.Id == guid);
         }
 
         return await dbContext.InventoryItems
+            .Include(item => item.CatalogItem)
             .AsNoTracking()
             .FirstOrDefaultAsync(item => item.InternalId == id);
     }
@@ -108,7 +111,10 @@ public class InventoryDataService
     public async Task<InventoryOptions> GetOptionsAsync()
     {
         await initializationTask;
-        var items = await dbContext.InventoryItems.AsNoTracking().ToListAsync();
+        var items = await dbContext.InventoryItems
+            .Include(item => item.CatalogItem)
+            .AsNoTracking()
+            .ToListAsync();
         var catalogEntries = await dbContext.CatalogEntries.AsNoTracking().ToListAsync();
         var manufacturers = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var name in await GetManufacturerOptionsAsync())

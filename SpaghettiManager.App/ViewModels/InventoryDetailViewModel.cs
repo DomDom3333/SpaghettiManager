@@ -105,7 +105,7 @@ public partial class InventoryDetailViewModel : ObservableObject, IQueryAttribut
         OpenedDate = FormatDate(InventoryFormatting.GetOpenedDate(item));
         LastWeighedDate = FormatDate(InventoryFormatting.GetLastMeasuredAt(item));
         LastDriedDate = FormatDate(InventoryFormatting.GetLastDriedAt(item));
-        Notes = item.Winding.Notes ?? string.Empty;
+        Notes = item.Overrides.Notes ?? item.Winding.Notes ?? string.Empty;
     }
 
     private static string FormatDate(DateTime? date)

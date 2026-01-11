@@ -7,17 +7,25 @@ namespace SpaghettiManager.App.Services;
 
 public static class InventoryFormatting
 {
-    public static string GetManufacturer(Item item) => item.Winding.Lot.Manufacturer;
+    public static string GetManufacturer(Item item)
+        => GetEffectiveLot(item)?.Manufacturer ?? string.Empty;
 
-    public static string GetProductLine(Item item) => item.Winding.Lot.ProductLine;
+    public static string GetProductLine(Item item)
+        => GetEffectiveLot(item)?.ProductLine ?? string.Empty;
 
-    public static string GetMaterialName(Item item) => item.Winding.Lot.Material.Name;
+    public static string GetMaterialName(Item item)
+        => GetEffectiveLot(item)?.Material.Name ?? string.Empty;
 
-    public static string GetColorName(Item item) => item.Winding.Lot.ColorName;
+    public static string GetColorName(Item item)
+        => GetEffectiveLot(item)?.ColorName ?? string.Empty;
 
     public static Enums.InventoryStatus GetStatus(Item item) => item.Winding.Status;
 
-    public static int? GetRemainingGrams(Item item) => item.Winding.RemainingFilamentGrams;
+    public static int? GetRemainingGrams(Item item)
+    {
+        var carrier = GetEffectiveCarrier(item);
+        return item.Winding.LastMeasuredTotalGrams - carrier?.TareGrams;
+    }
 
     public static DateTime? GetOpenedDate(Item item) => item.Winding.OpenedDate;
 
@@ -26,16 +34,16 @@ public static class InventoryFormatting
     public static DateTime? GetLastDriedAt(Item item) => item.Winding.LastDriedAt;
 
     public static Enums.Hygroscopicity GetHygroscopicity(Item item)
-        => item.Winding.Lot.Material.Hygroscopicity;
+        => GetEffectiveLot(item)?.Material.Hygroscopicity ?? Enums.Hygroscopicity.Unknown;
 
     public static string? GetColorHex(Item item)
-        => ToHex(item.Winding.Lot.ColorApprox);
+        => ToHex(GetEffectiveLot(item)?.ColorApprox);
 
     public static string GetCarrierLabel(Item item)
-        => GetCarrierLabel(item.Winding.Carrier);
+        => GetEffectiveCarrier(item) is { } carrier ? GetCarrierLabel(carrier) : "Unknown carrier";
 
     public static string GetCarrierNotes(Item item)
-        => GetCarrierNotes(item.Winding.Carrier);
+        => GetEffectiveCarrier(item) is { } carrier ? GetCarrierNotes(carrier) : string.Empty;
 
     public static string GetManufacturer(CatalogItem entry) => entry.TemplateLot.Manufacturer;
 
@@ -98,4 +106,10 @@ public static class InventoryFormatting
             ? $"#{value.A:X2}{value.R:X2}{value.G:X2}{value.B:X2}"
             : $"#{value.R:X2}{value.G:X2}{value.B:X2}";
     }
+
+    private static FilamentLot? GetEffectiveLot(Item item)
+        => item.Overrides.Lot ?? item.CatalogItem?.TemplateLot;
+
+    private static Carrier? GetEffectiveCarrier(Item item)
+        => item.Overrides.Carrier ?? item.CatalogItem?.DefaultCarrier;
 }
