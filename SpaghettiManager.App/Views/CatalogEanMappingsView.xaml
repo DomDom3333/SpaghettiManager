@@ -4,6 +4,7 @@
     x:DataType="viewModels:CatalogEanMappingsViewModel"
     x:Name="Root"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:modelRecords="clr-namespace:SpaghettiManager.Model.Records;assembly=SpaghettiManager.Model"
     xmlns:viewModels="clr-namespace:SpaghettiManager.App.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
@@ -16,18 +17,17 @@
 
             <CollectionView ItemsSource="{Binding Mappings}" SelectionMode="None">
                 <CollectionView.ItemTemplate>
-                    <!--  Use '+' for nested types in x:DataType  -->
-                    <DataTemplate x:DataType="viewModels:CatalogEanMappingsViewModel+EanMappingItem">
+                    <DataTemplate x:DataType="modelRecords:Spool">
                         <Border
                             Margin="0,4"
                             Padding="12"
                             StrokeThickness="0">
                             <VerticalStackLayout Spacing="6">
-                                <Label FontAttributes="Bold" Text="{Binding Ean}" />
+                                <Label FontAttributes="Bold" Text="{Binding Barcode}" />
                                 <Label FontSize="12" Text="{Binding Manufacturer}" />
-                                <Label FontSize="12" Text="{Binding ProductLine}" />
-                                <Label FontSize="12" Text="{Binding Diameter}" />
-                                <Label FontSize="12" Text="{Binding DefaultSpool}" />
+                                <Label FontSize="12" Text="{Binding Material.Name}" />
+                                <Label FontSize="12" Text="{Binding Material.DiameterMm, StringFormat='Diameter: {0} mm'}" />
+                                <Label FontSize="12" Text="{Binding Carrier.SpoolType}" />
                                 <HorizontalStackLayout Spacing="8">
                                     <Button
                                         Command="{Binding Source={x:Reference Root}, Path=BindingContext.EditMappingCommand}"

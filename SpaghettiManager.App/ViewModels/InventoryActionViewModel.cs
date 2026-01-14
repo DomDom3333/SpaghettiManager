@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Controls;
+using SpaghettiManager.Model;
+using SpaghettiManager.Model.Records;
 
 namespace SpaghettiManager.App.ViewModels;
 
@@ -16,16 +18,10 @@ public partial class InventoryActionViewModel : ObservableObject, IQueryAttribut
     private string description = "Create a new inventory item with minimal required data.";
 
     [ObservableProperty]
-    private string spoolCarrier = string.Empty;
+    private Carrier carrier = CreateSampleCarrier();
 
     [ObservableProperty]
-    private string totalWeight = string.Empty;
-
-    [ObservableProperty]
-    private string emptySpoolWeight = string.Empty;
-
-    [ObservableProperty]
-    private string notes = string.Empty;
+    private Material material = CreateSampleMaterial();
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
@@ -50,6 +46,37 @@ public partial class InventoryActionViewModel : ObservableObject, IQueryAttribut
             "weigh" => ("Weigh filament", "Enter total weight to update remaining grams."),
             "respool" => ("Respool filament", "Move filament onto a new carrier and keep the same lot."),
             _ => ("Add filament manually", "Create a new inventory item with minimal required data.")
+        };
+
+        Carrier = CreateSampleCarrier();
+        Material = CreateSampleMaterial();
+    }
+
+    private static Carrier CreateSampleCarrier()
+    {
+        return new Carrier
+        {
+            Manufacturer = "Generic",
+            SpoolType = Enums.SpoolType.GenericPlastic,
+            EmptyWeightGrams = 230,
+            SpoolRadius = 100,
+            SpoolHubRadius = 30,
+            SpoolHeight = 70,
+            HighTemp = false
+        };
+    }
+
+    private static Material CreateSampleMaterial()
+    {
+        return new Material
+        {
+            Name = "PLA",
+            Family = Enums.MaterialFamily.Pla,
+            Finish = Enums.Finish.Matte,
+            Opacity = Enums.Opacity.Opaque,
+            Manufacturer = "Generic",
+            DiameterMm = 1.75m,
+            Notes = "Add handling notes."
         };
     }
 }

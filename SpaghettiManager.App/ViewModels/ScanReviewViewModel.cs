@@ -1,24 +1,13 @@
-﻿using System.Collections.ObjectModel;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Controls;
-using Microsoft.Maui.Graphics;
+using SpaghettiManager.Model;
+using SpaghettiManager.Model.Records;
 
 namespace SpaghettiManager.App.ViewModels;
 
 public partial class ScanReviewViewModel : ObservableObject, IQueryAttributable
 {
-    public class EditableField
-    {
-        public string Label { get; set; } = string.Empty;
-        public string Value { get; set; } = string.Empty;
-        public string State { get; set; } = string.Empty;
-        public Color StateColor { get; set; } = Colors.Transparent;
-    }
-
-    [ObservableProperty]
-    private string barcode = string.Empty;
-
     [ObservableProperty]
     private string summaryTitle = "Unknown filament";
 
@@ -28,15 +17,11 @@ public partial class ScanReviewViewModel : ObservableObject, IQueryAttributable
     [ObservableProperty]
     private bool saveEanMapping;
 
-    public ObservableCollection<EditableField> Fields { get; } = new();
+    [ObservableProperty]
+    private Spool scannedSpool = CreateSampleSpool();
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
-        if (query.TryGetValue("barcode", out var barcodeValue))
-        {
-            Barcode = barcodeValue?.ToString() ?? string.Empty;
-        }
-
         LoadSample();
     }
 
@@ -54,44 +39,38 @@ public partial class ScanReviewViewModel : ObservableObject, IQueryAttributable
 
     private void LoadSample()
     {
-        SummaryTitle = "Overture PLA";
-        SummarySubtitle = "Fire Engine Red • 1.75 mm";
+        ScannedSpool = CreateSampleSpool();
+        SummaryTitle = $"{ScannedSpool.Manufacturer} {ScannedSpool.Material.Name}";
+        SummarySubtitle = $"{ScannedSpool.Material.Color} • {ScannedSpool.Material.DiameterMm} mm";
+    }
 
-        Fields.Clear();
-        Fields.Add(new EditableField
+    private static Spool CreateSampleSpool()
+    {
+        return new Spool
         {
-            Label = "Manufacturer",
-            Value = "Overture",
-            State = "Auto-filled",
-            StateColor = Color.FromArgb("#D0F0C0")
-        });
-        Fields.Add(new EditableField
-        {
-            Label = "Product line",
-            Value = "PLA Professional",
-            State = "Assumed",
-            StateColor = Color.FromArgb("#FFF4C2")
-        });
-        Fields.Add(new EditableField
-        {
-            Label = "Batch / lot",
-            Value = string.Empty,
-            State = "Required",
-            StateColor = Color.FromArgb("#FFD6D6")
-        });
-        Fields.Add(new EditableField
-        {
-            Label = "Spool / carrier",
-            Value = "Overture plastic spool",
-            State = "Auto-filled",
-            StateColor = Color.FromArgb("#D0F0C0")
-        });
-        Fields.Add(new EditableField
-        {
-            Label = "Initial weight (g)",
-            Value = "1000",
-            State = "Auto-filled",
-            StateColor = Color.FromArgb("#D0F0C0")
-        });
+            Manufacturer = "Overture",
+            Barcode = 1234567890,
+            BarcodeType = Enums.BarcodeType.Ean,
+            Material = new Material
+            {
+                Name = "PLA Professional",
+                Color = "Fire Engine Red",
+                Family = Enums.MaterialFamily.Pla,
+                Finish = Enums.Finish.Glossy,
+                Opacity = Enums.Opacity.Opaque,
+                Manufacturer = "Overture",
+                DiameterMm = 1.75m,
+                Notes = "Review batch/lot before saving."
+            },
+            Carrier = new Carrier
+            {
+                Manufacturer = "Overture",
+                SpoolType = Enums.SpoolType.GenericPlastic,
+                EmptyWeightGrams = 200,
+                SpoolRadius = 100,
+                SpoolHubRadius = 30,
+                SpoolHeight = 70
+            }
+        };
     }
 }

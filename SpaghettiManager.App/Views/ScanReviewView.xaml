@@ -13,26 +13,23 @@
                 <VerticalStackLayout Spacing="4">
                     <Label FontAttributes="Bold" Text="{Binding SummaryTitle}" />
                     <Label FontSize="12" Text="{Binding SummarySubtitle}" />
-                    <Label FontSize="10" Text="Barcode: {Binding Barcode}" />
+                    <Label FontSize="10" Text="{Binding ScannedSpool.Barcode, StringFormat='Barcode: {0}'}" />
                 </VerticalStackLayout>
             </Frame>
 
             <Label FontAttributes="Bold" Text="Review details" />
-            <CollectionView ItemsSource="{Binding EditableFields}" SelectionMode="None">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="viewModels:ScanReviewViewModel+EditableField">
-                        <Frame Margin="0,4" Padding="12">
-                            <VerticalStackLayout Spacing="6">
-                                <Label FontAttributes="Bold" Text="{Binding Label}" />
-                                <Entry Text="{Binding Value}" />
-                                <Grid BackgroundColor="{Binding StateColor}" Padding="6">
-                                    <Label FontSize="10" Text="{Binding State}" />
-                                </Grid>
-                            </VerticalStackLayout>
-                        </Frame>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+            <Frame Margin="0,4" Padding="12">
+                <VerticalStackLayout Spacing="10">
+                    <Entry Placeholder="Manufacturer" Text="{Binding ScannedSpool.Manufacturer}" />
+                    <Entry Placeholder="Material name" Text="{Binding ScannedSpool.Material.Name}" />
+                    <Entry Placeholder="Material family" Text="{Binding ScannedSpool.Material.Family}" />
+                    <Entry Placeholder="Material diameter (mm)" Text="{Binding ScannedSpool.Material.DiameterMm}" />
+                    <Entry Placeholder="Material color" Text="{Binding ScannedSpool.Material.Color}" />
+                    <Entry Placeholder="Carrier type" Text="{Binding ScannedSpool.Carrier.SpoolType}" />
+                    <Entry Placeholder="Empty carrier weight (g)" Text="{Binding ScannedSpool.Carrier.EmptyWeightGrams}" />
+                    <Editor AutoSize="TextChanges" Placeholder="Notes" Text="{Binding ScannedSpool.Material.Notes}" />
+                </VerticalStackLayout>
+            </Frame>
 
             <HorizontalStackLayout Spacing="8">
                 <Label Text="Save EAN mapping" VerticalOptions="Center" />
