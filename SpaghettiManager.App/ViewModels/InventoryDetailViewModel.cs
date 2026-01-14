@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Controls;
+using SpaghettiManager.Model;
+using SpaghettiManager.Model.Records;
 
 namespace SpaghettiManager.App.ViewModels;
 
@@ -10,34 +12,7 @@ public partial class InventoryDetailViewModel : ObservableObject, IQueryAttribut
     private string itemId = string.Empty;
 
     [ObservableProperty]
-    private string manufacturer = string.Empty;
-
-    [ObservableProperty]
-    private string material = string.Empty;
-
-    [ObservableProperty]
-    private string colorName = string.Empty;
-
-    [ObservableProperty]
-    private string status = string.Empty;
-
-    [ObservableProperty]
-    private string remainingGrams = string.Empty;
-
-    [ObservableProperty]
-    private string spoolCarrier = string.Empty;
-
-    [ObservableProperty]
-    private string openedDate = string.Empty;
-
-    [ObservableProperty]
-    private string lastWeighedDate = string.Empty;
-
-    [ObservableProperty]
-    private string lastDriedDate = string.Empty;
-
-    [ObservableProperty]
-    private string notes = string.Empty;
+    private Spool spool = CreateSampleSpool();
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
@@ -69,15 +44,39 @@ public partial class InventoryDetailViewModel : ObservableObject, IQueryAttribut
 
     private void LoadSample()
     {
-        Manufacturer = "Prusament";
-        Material = "PLA";
-        ColorName = "Galaxy Black";
-        Status = "In use";
-        RemainingGrams = "320";
-        SpoolCarrier = "Prusa spool (plastic)";
-        OpenedDate = "2024-02-01";
-        LastWeighedDate = "2024-02-12";
-        LastDriedDate = "2024-01-15";
-        Notes = "Keep in dry box after use.";
+        Spool = CreateSampleSpool();
+    }
+
+    private static Spool CreateSampleSpool()
+    {
+        return new Spool
+        {
+            Manufacturer = "Prusament",
+            Barcode = 1234567890,
+            BarcodeType = Enums.BarcodeType.Ean,
+            Material = new Material
+            {
+                Name = "PLA",
+                Color = "Galaxy Black",
+                Family = Enums.MaterialFamily.Pla,
+                Finish = Enums.Finish.Glossy,
+                Opacity = Enums.Opacity.Opaque,
+                Manufacturer = "Prusament",
+                DiameterMm = 1.75m,
+                Density_g_cm3 = 1.24m,
+                GlassTransitionC = 60,
+                Notes = "Keep in dry box after use."
+            },
+            Carrier = new Carrier
+            {
+                Manufacturer = "Prusa",
+                SpoolType = Enums.SpoolType.GenericPlastic,
+                EmptyWeightGrams = 245,
+                SpoolRadius = 100,
+                SpoolHubRadius = 30,
+                SpoolHeight = 70,
+                HighTemp = false
+            }
+        };
     }
 }

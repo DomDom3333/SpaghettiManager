@@ -4,6 +4,7 @@
     x:DataType="viewModels:InventoryListViewModel"
     x:Name="Root"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:modelRecords="clr-namespace:SpaghettiManager.Model.Records;assembly=SpaghettiManager.Model"
     xmlns:viewModels="clr-namespace:SpaghettiManager.App.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
@@ -32,7 +33,7 @@
 
         <CollectionView Grid.Row="1" ItemsSource="{Binding Items}">
             <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="viewModels:InventoryListViewModel+InventoryItemSummary">
+                <DataTemplate x:DataType="modelRecords:Spool">
                     <SwipeView>
                         <SwipeView.RightItems>
                             <SwipeItems Mode="Reveal">
@@ -56,24 +57,23 @@
                         <Border Margin="12,4" Padding="12">
                             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                                 <BoxView
-                                    Color="{Binding SwatchColor}"
+                                    Color="{Binding Material.Color}"
                                     HeightRequest="32"
                                     WidthRequest="32" />
                                 <VerticalStackLayout Grid.Column="1" Spacing="2">
                                     <Label FontAttributes="Bold" Text="{Binding Manufacturer}" />
-                                    <Label FontSize="12" Text="{Binding Material}" />
-                                    <Label FontSize="12" Text="{Binding ColorName}" />
+                                    <Label FontSize="12" Text="{Binding Material.Name}" />
+                                    <Label FontSize="12" Text="{Binding Material.Color}" />
                                 </VerticalStackLayout>
                                 <VerticalStackLayout
                                     Grid.Column="2"
                                     HorizontalOptions="End"
                                     Spacing="2">
-                                    <Label FontAttributes="Bold" Text="{Binding RemainingDisplay}" />
-                                    <Label FontSize="12" Text="{Binding Status}" />
+                                    <Label FontAttributes="Bold" Text="{Binding Material.Family}" />
+                                    <Label FontSize="12" Text="{Binding Carrier.SpoolType}" />
                                     <Label
                                         FontSize="10"
-                                        IsVisible="{Binding IsAmsCompatible}"
-                                        Text="AMS OK" />
+                                        Text="{Binding Carrier.EmptyWeightGrams, StringFormat='Empty: {0} g'}" />
                                 </VerticalStackLayout>
                                 <Grid.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding Source={x:Reference Root}, Path=BindingContext.OpenDetailCommand}" CommandParameter="{Binding .}" />

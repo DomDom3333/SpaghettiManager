@@ -116,6 +116,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\SpaghettiManager.Model\SpaghettiManager.Model.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
       <MauiXaml Remove="obj\**" />
       <MauiXaml Update="Pages\MainPage.xaml">
         <SubType>Designer</SubType>

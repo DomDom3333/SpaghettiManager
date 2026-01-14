@@ -3,20 +3,49 @@
     x:Class="SpaghettiManager.App.Views.CatalogSectionView"
     x:DataType="viewModels:CatalogSectionViewModel"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:modelRecords="clr-namespace:SpaghettiManager.Model.Records;assembly=SpaghettiManager.Model"
     xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
     xmlns:viewModels="clr-namespace:SpaghettiManager.App.ViewModels"
+    xmlns:views="clr-namespace:SpaghettiManager.App.Views"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <ContentView.Resources>
+        <DataTemplate x:Key="ManufacturerTemplate" x:DataType="modelRecords:Manufacturer">
+            <Frame Margin="0,4" Padding="12">
+                <VerticalStackLayout Spacing="4">
+                    <Label FontAttributes="Bold" Text="{Binding Name}" />
+                    <Label FontSize="12" Text="{Binding Country}" />
+                    <Label FontSize="12" Text="{Binding Website}" />
+                </VerticalStackLayout>
+            </Frame>
+        </DataTemplate>
+        <DataTemplate x:Key="MaterialTemplate" x:DataType="modelRecords:Material">
+            <Frame Margin="0,4" Padding="12">
+                <VerticalStackLayout Spacing="4">
+                    <Label FontAttributes="Bold" Text="{Binding Name}" />
+                    <Label FontSize="12" Text="{Binding Family}" />
+                    <Label FontSize="12" Text="{Binding Manufacturer}" />
+                </VerticalStackLayout>
+            </Frame>
+        </DataTemplate>
+        <DataTemplate x:Key="CarrierTemplate" x:DataType="modelRecords:Carrier">
+            <Frame Margin="0,4" Padding="12">
+                <VerticalStackLayout Spacing="4">
+                    <Label FontAttributes="Bold" Text="{Binding Manufacturer}" />
+                    <Label FontSize="12" Text="{Binding SpoolType}" />
+                    <Label FontSize="12" Text="{Binding EmptyWeightGrams, StringFormat='Empty: {0} g'}" />
+                </VerticalStackLayout>
+            </Frame>
+        </DataTemplate>
+        <views:CatalogItemTemplateSelector
+            x:Key="CatalogItemTemplateSelector"
+            CarrierTemplate="{StaticResource CarrierTemplate}"
+            ManufacturerTemplate="{StaticResource ManufacturerTemplate}"
+            MaterialTemplate="{StaticResource MaterialTemplate}" />
+    </ContentView.Resources>
 
     <VerticalStackLayout Padding="16" Spacing="16">
         <Label FontAttributes="Bold" Text="{Binding SectionTitle}" />
-        <CollectionView ItemsSource="{Binding Items}">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Frame Margin="0,4" Padding="12">
-                        <Label Text="{Binding .}" />
-                    </Frame>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+        <CollectionView ItemTemplate="{StaticResource CatalogItemTemplateSelector}" ItemsSource="{Binding Items}" />
     </VerticalStackLayout>
 </ContentView>

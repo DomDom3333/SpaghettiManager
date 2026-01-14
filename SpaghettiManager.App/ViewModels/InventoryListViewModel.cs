@@ -2,31 +2,20 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Controls;
-using Microsoft.Maui.Graphics;
+using SpaghettiManager.Model;
+using SpaghettiManager.Model.Records;
 
 namespace SpaghettiManager.App.ViewModels;
 
 public partial class InventoryListViewModel : ObservableObject, IQueryAttributable
 {
-    public class InventoryItemSummary
-    {
-        public string Id { get; set; } = string.Empty;
-        public string Manufacturer { get; set; } = string.Empty;
-        public string Material { get; set; } = string.Empty;
-        public string ColorName { get; set; } = string.Empty;
-        public Color SwatchColor { get; set; } = Colors.Gray;
-        public string RemainingDisplay { get; set; } = string.Empty;
-        public string Status { get; set; } = string.Empty;
-        public bool IsAmsCompatible { get; set; }
-    }
-
     public class FilterChip
     {
         public string Label { get; set; } = string.Empty;
         public string QueryValue { get; set; } = string.Empty;
     }
 
-    public ObservableCollection<InventoryItemSummary> Items { get; } = new();
+    public ObservableCollection<Spool> Items { get; } = new();
 
     public ObservableCollection<FilterChip> Filters { get; } = new();
 
@@ -62,7 +51,7 @@ public partial class InventoryListViewModel : ObservableObject, IQueryAttributab
     }
 
     [RelayCommand]
-    private Task OpenDetailAsync(InventoryItemSummary item)
+    private Task OpenDetailAsync(Spool item)
     {
         if (item == null)
         {
@@ -73,19 +62,19 @@ public partial class InventoryListViewModel : ObservableObject, IQueryAttributab
     }
 
     [RelayCommand]
-    private Task MarkEmptyAsync(InventoryItemSummary item)
+    private Task MarkEmptyAsync(Spool item)
     {
         return Task.CompletedTask;
     }
 
     [RelayCommand]
-    private Task UpdateRemainingAsync(InventoryItemSummary item)
+    private Task UpdateRemainingAsync(Spool item)
     {
         return Shell.Current.GoToAsync("///inventory/action?mode=weigh");
     }
 
     [RelayCommand]
-    private Task ChangeSpoolAsync(InventoryItemSummary item)
+    private Task ChangeSpoolAsync(Spool item)
     {
         return Shell.Current.GoToAsync("///inventory/action?mode=respool");
     }
@@ -137,38 +126,83 @@ public partial class InventoryListViewModel : ObservableObject, IQueryAttributab
     private void RefreshItems()
     {
         Items.Clear();
-        Items.Add(new InventoryItemSummary
+        Items.Add(new Spool
         {
-            Id = "INV-1001",
             Manufacturer = "Prusament",
-            Material = "PLA",
-            ColorName = "Galaxy Black",
-            SwatchColor = Color.FromArgb("#1C1C1C"),
-            RemainingDisplay = "320 g",
-            Status = "In use",
-            IsAmsCompatible = true
+            Barcode = 1234567890,
+            BarcodeType = Enums.BarcodeType.Ean,
+            Material = new Material
+            {
+                Name = "PLA",
+                Color = "#1C1C1C",
+                Family = Enums.MaterialFamily.Pla,
+                Finish = Enums.Finish.Glossy,
+                Opacity = Enums.Opacity.Opaque,
+                Manufacturer = "Prusament",
+                DiameterMm = 1.75m
+            },
+            Carrier = new Carrier
+            {
+                Manufacturer = "Prusa",
+                SpoolType = Enums.SpoolType.GenericPlastic,
+                EmptyWeightGrams = 245,
+                SpoolRadius = 100,
+                SpoolHubRadius = 30,
+                SpoolHeight = 70,
+                HighTemp = false
+            }
         });
-        Items.Add(new InventoryItemSummary
+        Items.Add(new Spool
         {
-            Id = "INV-1002",
             Manufacturer = "Overture",
-            Material = "PETG",
-            ColorName = "Fire Engine Red",
-            SwatchColor = Color.FromArgb("#C62828"),
-            RemainingDisplay = "Unknown",
-            Status = "Opened",
-            IsAmsCompatible = false
+            Barcode = 987654321,
+            BarcodeType = Enums.BarcodeType.Ean,
+            Material = new Material
+            {
+                Name = "PETG",
+                Color = "#C62828",
+                Family = Enums.MaterialFamily.PetCopolyester,
+                Finish = Enums.Finish.Silk,
+                Opacity = Enums.Opacity.Opaque,
+                Manufacturer = "Overture",
+                DiameterMm = 1.75m
+            },
+            Carrier = new Carrier
+            {
+                Manufacturer = "Overture",
+                SpoolType = Enums.SpoolType.Cardboard,
+                EmptyWeightGrams = 180,
+                SpoolRadius = 105,
+                SpoolHubRadius = 32,
+                SpoolHeight = 68,
+                HighTemp = false
+            }
         });
-        Items.Add(new InventoryItemSummary
+        Items.Add(new Spool
         {
-            Id = "INV-1003",
             Manufacturer = "Polymaker",
-            Material = "TPU",
-            ColorName = "Clear",
-            SwatchColor = Color.FromArgb("#E0E0E0"),
-            RemainingDisplay = "150 g",
-            Status = "Sealed",
-            IsAmsCompatible = true
+            Barcode = 112233445,
+            BarcodeType = Enums.BarcodeType.Ean,
+            Material = new Material
+            {
+                Name = "TPU",
+                Color = "#E0E0E0",
+                Family = Enums.MaterialFamily.FlexibleTpe,
+                Finish = Enums.Finish.Matte,
+                Opacity = Enums.Opacity.Translucent,
+                Manufacturer = "Polymaker",
+                DiameterMm = 1.75m
+            },
+            Carrier = new Carrier
+            {
+                Manufacturer = "Polymaker",
+                SpoolType = Enums.SpoolType.Reusable,
+                EmptyWeightGrams = 210,
+                SpoolRadius = 100,
+                SpoolHubRadius = 30,
+                SpoolHeight = 70,
+                HighTemp = true
+            }
         });
     }
 }

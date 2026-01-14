@@ -12,10 +12,13 @@
             <Label FontAttributes="Bold" FontSize="20" Text="{Binding Title}" />
             <Label FontSize="12" Text="{Binding Description}" />
 
-            <Entry Placeholder="Spool / carrier" Text="{Binding SpoolCarrier}" />
-            <Entry Placeholder="Total weight (g)" Text="{Binding TotalWeight}" />
-            <Entry Placeholder="Empty spool weight (g)" Text="{Binding EmptySpoolWeight}" />
-            <Editor AutoSize="TextChanges" Placeholder="Notes" Text="{Binding Notes}" />
+            <Entry Placeholder="Material name" Text="{Binding Material.Name}" />
+            <Entry Placeholder="Material family" Text="{Binding Material.Family}" />
+            <Entry Placeholder="Material diameter (mm)" Text="{Binding Material.DiameterMm}" />
+            <Entry Placeholder="Carrier manufacturer" Text="{Binding Carrier.Manufacturer}" />
+            <Entry Placeholder="Carrier type" Text="{Binding Carrier.SpoolType}" />
+            <Entry Placeholder="Empty carrier weight (g)" Text="{Binding Carrier.EmptyWeightGrams}" />
+            <Editor AutoSize="TextChanges" Placeholder="Notes" Text="{Binding Material.Notes}" />
 
             <Button Command="{Binding SaveCommand}" Text="Save" />
         </VerticalStackLayout>

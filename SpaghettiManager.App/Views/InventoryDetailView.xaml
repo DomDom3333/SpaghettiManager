@@ -19,35 +19,35 @@
                     Grid.Column="0"
                     Grid.Row="0"
                     Placeholder="Manufacturer"
-                    Text="{Binding Manufacturer}" />
+                    Text="{Binding Spool.Manufacturer}" />
                 <Entry
                     Grid.Column="1"
                     Grid.Row="0"
                     Placeholder="Material"
-                    Text="{Binding Material}" />
+                    Text="{Binding Spool.Material.Name}" />
                 <Entry
                     Grid.Column="0"
                     Grid.Row="1"
                     Placeholder="Color"
-                    Text="{Binding ColorName}" />
+                    Text="{Binding Spool.Material.Color}" />
                 <Entry
                     Grid.Column="1"
                     Grid.Row="1"
-                    Placeholder="Status"
-                    Text="{Binding Status}" />
+                    Placeholder="Family"
+                    Text="{Binding Spool.Material.Family}" />
                 <Entry
                     Grid.Column="0"
                     Grid.Row="2"
-                    Placeholder="Remaining (g)"
-                    Text="{Binding RemainingGrams}" />
+                    Placeholder="Opacity"
+                    Text="{Binding Spool.Material.Opacity}" />
                 <Entry
                     Grid.Column="1"
                     Grid.Row="2"
-                    Placeholder="Carrier / spool"
-                    Text="{Binding SpoolCarrier}" />
+                    Placeholder="Finish"
+                    Text="{Binding Spool.Material.Finish}" />
             </Grid>
 
-            <Label FontAttributes="Bold" Text="Usage &amp; history" />
+            <Label FontAttributes="Bold" Text="Material details" />
             <Grid
                 ColumnDefinitions="*,*"
                 ColumnSpacing="12"
@@ -56,25 +56,40 @@
                 <Entry
                     Grid.Column="0"
                     Grid.Row="0"
-                    Placeholder="Opened"
-                    Text="{Binding OpenedDate}" />
+                    Placeholder="Diameter (mm)"
+                    Text="{Binding Spool.Material.DiameterMm}" />
                 <Entry
                     Grid.Column="1"
                     Grid.Row="0"
-                    Placeholder="Last weighed"
-                    Text="{Binding LastWeighedDate}" />
+                    Placeholder="Density (g/cm³)"
+                    Text="{Binding Spool.Material.Density_g_cm3}" />
                 <Entry
                     Grid.Column="0"
                     Grid.Row="1"
-                    Placeholder="Last dried"
-                    Text="{Binding LastDriedDate}" />
+                    Placeholder="Glass transition (°C)"
+                    Text="{Binding Spool.Material.GlassTransitionC}" />
+                <Entry
+                    Grid.Column="1"
+                    Grid.Row="1"
+                    Placeholder="Carrier type"
+                    Text="{Binding Spool.Carrier.SpoolType}" />
+                <Entry
+                    Grid.Column="0"
+                    Grid.Row="2"
+                    Placeholder="Carrier weight (g)"
+                    Text="{Binding Spool.Carrier.EmptyWeightGrams}" />
+                <Entry
+                    Grid.Column="1"
+                    Grid.Row="2"
+                    Placeholder="Carrier maker"
+                    Text="{Binding Spool.Carrier.Manufacturer}" />
             </Grid>
 
             <Label FontAttributes="Bold" Text="Notes" />
             <Editor
                 AutoSize="TextChanges"
                 Placeholder="Notes"
-                Text="{Binding Notes}" />
+                Text="{Binding Spool.Material.Notes}" />
 
             <Label FontAttributes="Bold" Text="Actions" />
             <HorizontalStackLayout Spacing="8">
