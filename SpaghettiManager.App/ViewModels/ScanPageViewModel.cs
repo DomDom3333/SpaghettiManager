@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using BarcodeScanning;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+﻿using BarcodeScanning;
 
 namespace SpaghettiManager.App.ViewModels;
 

@@ -1,4 +1,3 @@
-using Microsoft.Maui.Controls;
 using UraniumUI.Views;
 
 namespace SpaghettiManager.App.Views;

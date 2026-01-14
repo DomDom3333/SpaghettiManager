@@ -1,4 +1,3 @@
-using System.Net.Http.Headers;
 using Shiny.Mediator.Http;
 
 namespace SpaghettiManager.App.Infrastructure;

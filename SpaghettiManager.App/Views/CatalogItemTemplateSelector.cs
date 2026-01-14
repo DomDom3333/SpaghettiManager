@@ -1,4 +1,3 @@
-using Microsoft.Maui.Controls;
 using SpaghettiManager.Model.Records;
 
 namespace SpaghettiManager.App.Views;

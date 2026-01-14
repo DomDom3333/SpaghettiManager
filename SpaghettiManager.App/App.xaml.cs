@@ -1,6 +1,4 @@
-﻿using SpaghettiManager.App.Pages;
-
-namespace SpaghettiManager.App;
+﻿namespace SpaghettiManager.App;
 
 public partial class App : Application
 {

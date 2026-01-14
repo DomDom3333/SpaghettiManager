@@ -1,7 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.Maui.Controls;
-using SpaghettiManager.Model;
+﻿using SpaghettiManager.Model;
 using SpaghettiManager.Model.Records;
 
 namespace SpaghettiManager.App.ViewModels;

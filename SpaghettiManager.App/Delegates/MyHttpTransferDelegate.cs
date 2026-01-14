@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Shiny.Net.Http;
 
 namespace SpaghettiManager.App.Delegates;

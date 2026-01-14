@@ -9,7 +9,6 @@ using PanCardView;
 using SkiaSharp.Views.Maui.Controls.Hosting;
 using FFImageLoading.Maui;
 using UraniumUI;
-using CommunityToolkit.Maui;
 using Polly;
 using Polly.Retry;
 using Shiny.Extensions.Stores;

@@ -1,8 +1,4 @@
-﻿using System;
-using Microsoft.Maui;
-using Microsoft.Extensions.DependencyInjection;
-
-namespace SpaghettiManager.App.Infrastructure;
+﻿namespace SpaghettiManager.App.Infrastructure;
 
 public static class ServiceHelper
 {
