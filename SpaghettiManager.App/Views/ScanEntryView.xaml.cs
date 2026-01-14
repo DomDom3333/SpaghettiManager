@@ -1,8 +1,9 @@
 using Microsoft.Maui.Controls;
+using UraniumUI.Views;
 
 namespace SpaghettiManager.App.Views;
 
-public partial class ScanEntryView : ContentView
+public partial class ScanEntryView : StatefulContentView
 {
     public ScanEntryView()
     {

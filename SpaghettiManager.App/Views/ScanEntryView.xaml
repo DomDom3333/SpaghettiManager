@@ -1,8 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentView
+<uranium:StatefulContentView
     x:Class="SpaghettiManager.App.Views.ScanEntryView"
     x:DataType="viewModels:ScanPageViewModel"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:scanner="clr-namespace:BarcodeScanning;assembly=BarcodeScanning.Native.Maui"
     xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
     xmlns:viewModels="clr-namespace:SpaghettiManager.App.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
@@ -11,13 +12,15 @@
         <Label FontAttributes="Bold" Text="Scan a barcode" />
         <Frame
             BackgroundColor="{DynamicResource SecondaryContainer}"
-            HeightRequest="220"
+            HeightRequest="240"
             Padding="0">
             <Grid>
-                <Label
-                    HorizontalOptions="Center"
-                    Text="Camera preview"
-                    VerticalOptions="Center" />
+                <scanner:CameraView
+                    AimMode="True"
+                    CameraEnabled="{Binding IsScanning}"
+                    OnDetectionFinishedCommand="{Binding HandleDetectionFinishedCommand}"
+                    TapToFocusEnabled="True"
+                    VibrationOnDetected="True" />
                 <Label
                     FontSize="12"
                     HorizontalOptions="Center"
@@ -32,9 +35,8 @@
 
         <HorizontalStackLayout Spacing="8">
             <Button Command="{Binding ToggleScanningCommand}" Text="Start / stop scan" />
-            <Button Command="{Binding SimulateScanCommand}" Text="Simulate scan" />
         </HorizontalStackLayout>
 
         <Button Command="{Binding ReviewCommand}" Text="Review &amp; confirm" />
     </VerticalStackLayout>
-</ContentView>
+</uranium:StatefulContentView>
