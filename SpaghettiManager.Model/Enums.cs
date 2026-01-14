@@ -61,80 +61,18 @@ public static class Enums
         Textured,
     }
 
-    [Flags]
-    public enum MaterialCategory
+    public enum BarcodeType
     {
         Unknown = 0,
-        Standard = 1 << 0,
-        Engineering = 1 << 1,
-        HighTemperature = 1 << 2,
-        Flexible = 1 << 3,
-        Support = 1 << 4,
-        Composite = 1 << 5,
+        Ean = 1,
     }
-
-    public enum Hygroscopicity
+    
+    public enum SpoolType : short
     {
         Unknown = 0,
-        Low,
-        Medium,
-        High,
-        VeryHigh,
-    }
-
-    public enum NozzleAbrasiveness
-    {
-        Unknown = 0,
-        NonAbrasive,
-        ModeratelyAbrasive,
-        HighlyAbrasive,
-    }
-
-    public enum SpoolMaterial
-    {
-        Unknown = 0,
-        Plastic,
-        Cardboard,
-        Metal,
-    }
-
-    public enum CarrierKind
-    {
-        Unknown = 0,
-        Spool,
-        SpoollessCoil,
-        MasterSpoolRefill, // “refill” meant for a reusable master spool
-    }
-
-    public enum FilamentDiameter
-    {
-        Unknown = 0,
-        Mm175,
-        Mm285,
-    }
-
-    public enum FilamentForm
-    {
-        Unknown = 0,
-        Round,
-        Oval,
-        FilledComposite, // still “round” physically, but helps UI/filtering
-    }
-
-    public enum WindingDirection
-    {
-        Unknown = 0,
-        Clockwise,
-        CounterClockwise,
-    }
-
-    public enum InventoryStatus
-    {
-        Unknown = 0,
-        Sealed,
-        Opened,
-        InUse,
-        Empty,
-        Discarded,
+        GenericPlastic = 1,
+        Cardboard = 2,
+        Reusable = 3,
+        Refill = 4
     }
 }

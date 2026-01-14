@@ -1,26 +1,21 @@
-﻿using System.Drawing;
+﻿namespace SpaghettiManager.Model.Records;
 
-namespace SpaghettiManager.Model.Records;
-
-public record Spool
+public sealed record Spool
 {
-    public string Manufacturer { get; init; } = "";     // e.g. "Bambu", "Polymaker", or "Generic"
-    public string Model { get; init; } = "";            // e.g. "Reusable Spool", "Cardboard 1kg"
-    public int Version { get; init; } = 1;
+    public Guid Id { get; init; } = Guid.NewGuid();
+    public int Barcode { get; set; }
+    public Enums.BarcodeType BarcodeType { get; set; }
+    public Material Material { get; set; } = null!;
 
-    public Enums.SpoolMaterial Material { get; init; } = Enums.SpoolMaterial.Unknown;
+    public string? Manufacturer { get; set; }
+    
+    public Carrier Carrier { get; set; }
+    public DateTimeOffset LastUpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 
-    // Dimensions (mm) — optional, but useful for AMS/compat checks
-    public int? OuterDiameterMm { get; init; }
-    public int? WidthMm { get; init; }
-    public int? InnerHubDiameterMm { get; init; }
-
-    // If you want to track physical spool colors (not filament color)
-    public Color? SpoolColor { get; init; }
-
-    // Mass of empty spool (helps remaining calc)
-    public int? TareGrams { get; init; }
-
-    // Compatibility notes (optional)
-    public string? Notes { get; init; }                 // e.g. “Fits AMS with adapter ring”
+    public void Refill(Spool spool)
+    {
+        Material = spool.Material;
+        Barcode = spool.Barcode;
+        BarcodeType = spool.BarcodeType;
+    }
 }

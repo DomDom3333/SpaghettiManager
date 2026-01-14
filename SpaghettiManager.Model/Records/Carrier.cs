@@ -1,13 +1,14 @@
 ﻿namespace SpaghettiManager.Model.Records;
 
-public record Carrier
+public sealed record Carrier
 {
-    public Enums.CarrierKind Kind { get; init; } = Enums.CarrierKind.Unknown;
+    public Guid Id { get; init; } = Guid.NewGuid();
+    public Enums.SpoolType SpoolType { get; set; }
+    public int EmptyWeightGrams { get; set; }
+    public string Manufacturer { get; set; }
+    public int SpoolRadius { get; set; }
+    public int SpoolHubRadius { get; set; }
+    public int SpoolHeight { get; set; }
 
-    // Only set when Kind == Spool
-    public Spool? Spool { get; init; }
-
-    // For coils/refills: optionally store some physical info
-    public int? TareGrams { get; init; } // coil core, refill ring, etc.
-    public string? Notes { get; init; }
+    public bool HighTemp { get; set; }
 }
