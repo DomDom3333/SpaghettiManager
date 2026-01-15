@@ -52,7 +52,7 @@ public class SpaghettiDatabase
         await SeedAsync();
     }
 
-    public async virtual Task SeedAsync()
+    public virtual async Task SeedAsync()
     {
         await SeedManufacturersAsync();
         await SeedFilamentsAsync();
@@ -397,6 +397,32 @@ public class SpaghettiDatabase
         await InitializeAsync();
         return await connection.Table<Material>().ToListAsync();
     }
+
+    public async Task<IReadOnlyList<Material>> GetMaterialsPagedAsync(int offset, int limit)
+    {
+        await InitializeAsync();
+        return await connection.Table<Material>()
+            .OrderBy(m => m.Manufacturer)
+            .ThenBy(m => m.Name)
+            .Skip(offset)
+            .Take(limit)
+            .ToListAsync();
+    }
+
+    public async Task<MaterialSummary> GetMaterialsSummaryAsync()
+    {
+        await InitializeAsync();
+        var totalCount = await connection.Table<Material>().CountAsync();
+        
+        // For family and manufacturer counts, we need to query
+        var allFamilies = await connection.QueryAsync<Material>("SELECT DISTINCT Family FROM materials");
+        var allManufacturers = await connection.QueryAsync<Material>(
+            "SELECT DISTINCT Manufacturer FROM materials WHERE Manufacturer IS NOT NULL AND Manufacturer != ''");
+        
+        return new MaterialSummary(totalCount, allFamilies.Count, allManufacturers.Count);
+    }
+
+    public record MaterialSummary(int TotalCount, int FamilyCount, int ManufacturerCount);
 
     public async Task<int> SaveMaterialAsync(Material material)
     {

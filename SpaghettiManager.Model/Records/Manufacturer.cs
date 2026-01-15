@@ -9,9 +9,13 @@ namespace SpaghettiManager.Model.Records;
 public record Manufacturer
 {
     [PrimaryKey]
-    public string Id { get; set; } = string.Empty;
+    [JsonPropertyName("id")]
+    public string Id { get; set; }
+    [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
+    [JsonPropertyName("country")]
     public string? Country { get; set; }
+    [JsonPropertyName("website")]
     public string? Website { get; set; }
 
     // Stored as a semicolon-separated string in JSON seed and in the DB column.
