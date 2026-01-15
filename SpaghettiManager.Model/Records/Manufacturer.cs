@@ -1,4 +1,6 @@
-﻿using System.Text.Json;
+﻿using System;
+using System.Linq;
+using System.Text.Json.Serialization;
 using SQLite;
 
 namespace SpaghettiManager.Model.Records;
@@ -6,37 +8,34 @@ namespace SpaghettiManager.Model.Records;
 [Table("manufacturers")]
 public record Manufacturer
 {
-    [Ignore]
-    private string[]? aliases;
-
     [PrimaryKey]
-    public string Id { get; set; }
-    public string Name { get; set; }
-    public string Country { get; set; }
-    public string Website { get; set; }
-    public string? AliasesJson { get; set; }
+    public string Id { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string? Country { get; set; }
+    public string? Website { get; set; }
 
+    // Stored as a semicolon-separated string in JSON seed and in the DB column.
+    [JsonPropertyName("aliases")]
+    [Column("aliases")]
+    public string? Aliases { get; set; }
+
+    // Helper property for code usage: returns aliases as a trimmed string array and can set the Aliases string.
     [Ignore]
-    public string[] Aliases
+    public string[]? AliasesList
     {
-        get
-        {
-            if (aliases is not null)
-            {
-                return aliases;
-            }
-
-            aliases = string.IsNullOrWhiteSpace(AliasesJson)
-                ? Array.Empty<string>()
-                : JsonSerializer.Deserialize<string[]>(AliasesJson) ?? Array.Empty<string>();
-            return aliases;
-        }
+        get => string.IsNullOrWhiteSpace(Aliases)
+            ? []
+            : Aliases.Split(';', StringSplitOptions.RemoveEmptyEntries);
         set
         {
-            aliases = value ?? Array.Empty<string>();
-            AliasesJson = aliases.Length == 0
-                ? null
-                : JsonSerializer.Serialize(aliases);
+            if (value == null || value.Length == 0)
+            {
+                Aliases = string.Empty;
+                return;
+            }
+
+            Aliases = string.Join("; ", value.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.Trim()));
         }
     }
+
 }

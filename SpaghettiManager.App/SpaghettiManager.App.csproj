@@ -57,6 +57,8 @@
         <MauiAsset Include="appsettings.json" LogicalName="appsettings.json"/>
         <MauiAsset Include="appsettings.android.json" LogicalName="appsettings.android.json"/>
         <MauiAsset Include="appsettings.apple.json" LogicalName="appsettings.apple.json"/>
+        <MauiAsset Include="..\SpaghettiManager.Model\Data\Manufacturers.json" LogicalName="Data/Manufacturers.json"/>
+        <MauiAsset Include="..\SpaghettiManager.Model\Data\thefilamentdb.jsonl" LogicalName="Data/thefilamentdb.jsonl"/>
 
         <Content Remove="**\appsettings.json"/>
         <Content Remove="**\appsettings.*.json"/>

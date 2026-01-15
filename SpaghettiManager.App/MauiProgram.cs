@@ -1,7 +1,7 @@
 ﻿using Acr.UserDialogs;
-#if DEBUG
-using Plugin.Maui.DebugRainbows;
-#endif
+// #if DEBUG
+// using Plugin.Maui.DebugRainbows;
+// #endif
 using Plugin.Maui.OCR;
 using BarcodeScanning;
 using AiForms.Settings;
@@ -46,7 +46,7 @@ public static class MauiProgram
                     Shiny.Hosting.Host.GetService<SpaghettiManager.App.Delegates.AppActionDelegate>()!.Handle(y))
             )
 #if DEBUG
-            .UseDebugRainbows(
+            //.UseDebugRainbows(
                 //     new DebugRainbowOptions{
                 //         ShowRainbows = true,
                 //         ShowGrid = true,
@@ -57,7 +57,7 @@ public static class MauiProgram
                 //         MinorGridLines = new GridLineOptions { Color = Color.FromRgb(255, 0, 0), Opacity = 1, Width = 1 },
                 //         GridOrigin = DebugGridOrigin.TopLeft,
                 //     }
-            )
+            //)
 #endif
             .ConfigureFonts(fonts =>
             {
