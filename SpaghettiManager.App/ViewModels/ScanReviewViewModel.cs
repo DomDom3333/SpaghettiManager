@@ -76,7 +76,12 @@ public partial class ScanReviewViewModel : ObservableObject, IQueryAttributable
             return;
         }
 
-        var existingSpool = await database.GetSpoolByBarcodeAsync(barcode);
+        Spool? existingSpool = null;
+        await foreach (var s in database.StreamSpoolsAsync(barcode: barcode, pageSize: 1))
+        {
+            existingSpool = s;
+            break;
+        }
         if (existingSpool is not null)
         {
             ScannedSpool = existingSpool;

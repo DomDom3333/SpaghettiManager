@@ -50,13 +50,14 @@ public partial class CatalogEanMappingsViewModel : ObservableObject
         {
             Mappings.Clear();
 
-            var mappings = await database.GetSpoolsAsync();
-            foreach (var mapping in mappings.OrderByDescending(item => item.LastUpdatedAt))
+            var count = 0;
+            await foreach (var mapping in database.StreamSpoolsAsync(pageSize: 250))
             {
                 Mappings.Add(mapping);
+                count++;
             }
 
-            Summary = $"{Mappings.Count} barcode mappings";
+            Summary = $"{count} barcode mappings";
         }
         finally
         {
