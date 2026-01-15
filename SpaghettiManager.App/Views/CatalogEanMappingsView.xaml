@@ -15,6 +15,8 @@
                 <Button Command="{Binding AddMappingCommand}" Text="Add mapping" />
             </HorizontalStackLayout>
 
+            <Label FontSize="12" Text="{Binding Summary}" TextColor="{DynamicResource SecondaryTextColor}" />
+
             <CollectionView ItemsSource="{Binding Mappings}" SelectionMode="None">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="modelRecords:Spool">
@@ -42,6 +44,13 @@
                         </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
+                <CollectionView.EmptyView>
+                    <Label
+                        FontSize="12"
+                        HorizontalOptions="Center"
+                        Text="{Binding EmptyMessage}"
+                        TextColor="{DynamicResource SecondaryTextColor}" />
+                </CollectionView.EmptyView>
             </CollectionView>
         </VerticalStackLayout>
     </ScrollView>

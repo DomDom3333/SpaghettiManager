@@ -17,6 +17,13 @@
                 </VerticalStackLayout>
             </Frame>
 
+            <Frame BackgroundColor="{DynamicResource SecondaryContainer}" Padding="12">
+                <VerticalStackLayout Spacing="4">
+                    <Label FontAttributes="Bold" Text="{Binding MappingStatusTitle}" />
+                    <Label FontSize="12" Text="{Binding MappingStatusSubtitle}" />
+                </VerticalStackLayout>
+            </Frame>
+
             <Label FontAttributes="Bold" Text="Review details" />
             <Frame Margin="0,4" Padding="12">
                 <VerticalStackLayout Spacing="10">

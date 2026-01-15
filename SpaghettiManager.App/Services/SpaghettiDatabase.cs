@@ -52,7 +52,7 @@ public class SpaghettiDatabase
         await SeedAsync();
     }
 
-    public async virtual Task SeedAsync()
+    public virtual async Task SeedAsync()
     {
         await SeedManufacturersAsync();
         await SeedFilamentsAsync();
@@ -398,6 +398,32 @@ public class SpaghettiDatabase
         return await connection.Table<Material>().ToListAsync();
     }
 
+    public async Task<IReadOnlyList<Material>> GetMaterialsPagedAsync(int offset, int limit)
+    {
+        await InitializeAsync();
+        return await connection.Table<Material>()
+            .OrderBy(m => m.Manufacturer)
+            .ThenBy(m => m.Name)
+            .Skip(offset)
+            .Take(limit)
+            .ToListAsync();
+    }
+
+    public async Task<MaterialSummary> GetMaterialsSummaryAsync()
+    {
+        await InitializeAsync();
+        var totalCount = await connection.Table<Material>().CountAsync();
+        
+        // For family and manufacturer counts, we need to query
+        var allFamilies = await connection.QueryAsync<Material>("SELECT DISTINCT Family FROM materials");
+        var allManufacturers = await connection.QueryAsync<Material>(
+            "SELECT DISTINCT Manufacturer FROM materials WHERE Manufacturer IS NOT NULL AND Manufacturer != ''");
+        
+        return new MaterialSummary(totalCount, allFamilies.Count, allManufacturers.Count);
+    }
+
+    public record MaterialSummary(int TotalCount, int FamilyCount, int ManufacturerCount);
+
     public async Task<int> SaveMaterialAsync(Material material)
     {
         await InitializeAsync();
@@ -454,6 +480,26 @@ public class SpaghettiDatabase
         }
 
         return spools;
+    }
+
+    public async Task<Spool?> GetSpoolByBarcodeAsync(int barcode)
+    {
+        await InitializeAsync();
+
+        var spool = await connection.Table<Spool>()
+            .Where(item => item.Barcode == barcode)
+            .FirstOrDefaultAsync();
+        if (spool is null)
+        {
+            return null;
+        }
+
+        spool.Material = await connection.FindAsync<Material>(spool.MaterialId)
+            ?? new Material { Id = spool.MaterialId };
+        spool.Carrier = await connection.FindAsync<Carrier>(spool.CarrierId)
+            ?? new Carrier { Id = spool.CarrierId };
+
+        return spool;
     }
 
     public async Task<Spool?> GetSpoolAsync(Guid spoolId)
