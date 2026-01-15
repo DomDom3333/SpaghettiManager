@@ -386,6 +386,41 @@ public class SpaghettiDatabase
         return await connection.Table<Manufacturer>().ToListAsync();
     }
 
+    public async Task<int> GetManufacturersCountAsync()
+    {
+        await InitializeAsync();
+        return await connection.Table<Manufacturer>().CountAsync();
+    }
+
+    public async Task<IReadOnlyList<Manufacturer>> GetManufacturersPagedAsync(int offset, int limit)
+    {
+        await InitializeAsync();
+        return await connection.Table<Manufacturer>()
+            .OrderBy(m => m.Name)
+            .Skip(offset)
+            .Take(limit)
+            .ToListAsync();
+    }
+
+    public async Task<int> SearchManufacturersCountAsync(string query)
+    {
+        await InitializeAsync();
+        var like = BuildLikeQuery(query);
+        var results = await connection.QueryAsync<CountResult>(
+            "SELECT COUNT(*) AS Count FROM manufacturers WHERE Name LIKE ? OR Country LIKE ? OR Website LIKE ? OR Aliases LIKE ?",
+            like, like, like, like);
+        return results.FirstOrDefault()?.Count ?? 0;
+    }
+
+    public async Task<IReadOnlyList<Manufacturer>> SearchManufacturersPagedAsync(string query, int offset, int limit)
+    {
+        await InitializeAsync();
+        var like = BuildLikeQuery(query);
+        return await connection.QueryAsync<Manufacturer>(
+            "SELECT * FROM manufacturers WHERE Name LIKE ? OR Country LIKE ? OR Website LIKE ? OR Aliases LIKE ? ORDER BY Name LIMIT ? OFFSET ?",
+            like, like, like, like, limit, offset);
+    }
+
     public async Task<int> SaveManufacturerAsync(Manufacturer manufacturer)
     {
         await InitializeAsync();
@@ -398,6 +433,12 @@ public class SpaghettiDatabase
         return await connection.Table<Material>().ToListAsync();
     }
 
+    public async Task<int> GetMaterialsCountAsync()
+    {
+        await InitializeAsync();
+        return await connection.Table<Material>().CountAsync();
+    }
+
     public async Task<IReadOnlyList<Material>> GetMaterialsPagedAsync(int offset, int limit)
     {
         await InitializeAsync();
@@ -407,6 +448,25 @@ public class SpaghettiDatabase
             .Skip(offset)
             .Take(limit)
             .ToListAsync();
+    }
+
+    public async Task<int> SearchMaterialsCountAsync(string query)
+    {
+        await InitializeAsync();
+        var like = BuildLikeQuery(query);
+        var results = await connection.QueryAsync<CountResult>(
+            "SELECT COUNT(*) AS Count FROM materials WHERE Name LIKE ? OR Manufacturer LIKE ? OR Color LIKE ? OR Notes LIKE ?",
+            like, like, like, like);
+        return results.FirstOrDefault()?.Count ?? 0;
+    }
+
+    public async Task<IReadOnlyList<Material>> SearchMaterialsPagedAsync(string query, int offset, int limit)
+    {
+        await InitializeAsync();
+        var like = BuildLikeQuery(query);
+        return await connection.QueryAsync<Material>(
+            "SELECT * FROM materials WHERE Name LIKE ? OR Manufacturer LIKE ? OR Color LIKE ? OR Notes LIKE ? ORDER BY Manufacturer, Name LIMIT ? OFFSET ?",
+            like, like, like, like, limit, offset);
     }
 
     public async Task<MaterialSummary> GetMaterialsSummaryAsync()
@@ -423,6 +483,13 @@ public class SpaghettiDatabase
     }
 
     public record MaterialSummary(int TotalCount, int FamilyCount, int ManufacturerCount);
+
+    private static string BuildLikeQuery(string query)
+    {
+        return $"%{query}%";
+    }
+
+    private sealed record CountResult(int Count);
 
     public async Task<int> SaveMaterialAsync(Material material)
     {
