@@ -7,19 +7,18 @@ namespace SpaghettiManager.App.ViewModels;
 public partial class CatalogSectionViewModel : ObservableObject, IQueryAttributable
 {
     private readonly SpaghettiDatabase database;
-    private readonly List<object> sourceItems = new();
     private string? sectionKey;
 
     // Pagination for materials and manufacturers
     private const int PageSize = 50;
-    private int currentOffset;
-    private int totalItemCount;
-    private bool isLoadingMore;
     private bool hasMoreItems;
     private bool isSearchMode;
     private bool suppressSearchChange;
     private string? activeSearchQuery;
     private CancellationTokenSource? searchDebounceCts;
+    private CancellationTokenSource? streamCts;
+    private IAsyncEnumerator<object>? currentEnumerator;
+    private int loadedCount;
 
     [ObservableProperty]
     private string sectionTitle = string.Empty;
@@ -42,6 +41,9 @@ public partial class CatalogSectionViewModel : ObservableObject, IQueryAttributa
     [ObservableProperty]
     private bool canLoadMore;
 
+    [ObservableProperty]
+    private bool isLoadingMore;
+
     public ObservableCollection<object> Items { get; } = new();
 
     public CatalogSectionViewModel(SpaghettiDatabase database)
@@ -52,7 +54,7 @@ public partial class CatalogSectionViewModel : ObservableObject, IQueryAttributa
     [RelayCommand]
     private async Task LoadMoreAsync()
     {
-        if (!IsPagedSection() || isLoadingMore || !hasMoreItems)
+        if (currentEnumerator is null || IsLoadingMore || !hasMoreItems)
         {
             return;
         }
@@ -63,7 +65,7 @@ public partial class CatalogSectionViewModel : ObservableObject, IQueryAttributa
             return;
         }
 
-        await LoadMorePagedItemsAsync();
+        await FetchNextNAsync(PageSize);
     }
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
@@ -102,24 +104,23 @@ public partial class CatalogSectionViewModel : ObservableObject, IQueryAttributa
             SearchQuery = string.Empty;
             suppressSearchChange = false;
             Items.Clear();
-            sourceItems.Clear();
             isSearchMode = false;
             activeSearchQuery = null;
-            ResetPaginationState();
+            ResetStreamState();
 
             switch (sectionKey)
             {
                 case "manufacturers":
                     SectionTitle = "Manufacturers";
-                    await LoadManufacturersAsync();
+                    await StartNewStreamAsync();
                     break;
                 case "materials":
                     SectionTitle = "Materials";
-                    await LoadMaterialsAsync();
+                    await StartNewStreamAsync();
                     break;
                 case "spools":
                     SectionTitle = "Spools / carriers";
-                    await LoadCarriersAsync();
+                    await StartNewStreamAsync();
                     break;
                 case "additives":
                     SectionTitle = "Additives";
@@ -132,11 +133,6 @@ public partial class CatalogSectionViewModel : ObservableObject, IQueryAttributa
                     EmptyStateMessage = "Nothing to show yet.";
                     break;
             }
-
-            if (!IsPagedSection())
-            {
-                ApplyFilter();
-            }
         }
         finally
         {
@@ -144,97 +140,73 @@ public partial class CatalogSectionViewModel : ObservableObject, IQueryAttributa
         }
     }
 
-    private async Task LoadManufacturersAsync()
+    private async Task StartNewStreamAsync()
     {
-        var totalCount = await database.GetManufacturersCountAsync();
-        var ordered = await database.GetManufacturersPagedAsync(0, PageSize);
+        // Cancel previous stream
+        streamCts?.Cancel();
+        streamCts?.Dispose();
+        currentEnumerator?.DisposeAsync();
+        streamCts = new CancellationTokenSource();
+        loadedCount = 0;
+        SectionSummary = "Loading...";
+        EmptyStateMessage = "No items available yet.";
 
-        SectionSummary = $"{totalCount} manufacturers";
-        EmptyStateMessage = "No manufacturers found in the catalog.";
-        SetPaginationState(totalCount, ordered.Count);
-        foreach (var manufacturer in ordered)
-        {
-            Items.Add(manufacturer);
-        }
+        currentEnumerator = CreateStreamEnumerator(SearchQuery, streamCts.Token);
+        await FetchNextNAsync(PageSize);
     }
 
-    private async Task LoadMaterialsAsync()
+    private IAsyncEnumerator<object> CreateStreamEnumerator(string? query, CancellationToken token)
     {
-        // Get summary info without loading all materials
-        var summary = await database.GetMaterialsSummaryAsync();
-        totalItemCount = summary.TotalCount;
-        
-        SectionSummary = $"{summary.TotalCount} materials • {summary.FamilyCount} families • {summary.ManufacturerCount} manufacturers";
-        EmptyStateMessage = "No materials found in the catalog.";
-
-        // Load first page (already ordered by Manufacturer, Name in the database query)
-        var materials = await database.GetMaterialsPagedAsync(0, PageSize);
-        SetPaginationState(totalItemCount, materials.Count);
-        foreach (var material in materials)
+        return sectionKey switch
         {
-            Items.Add(material);
-        }
+            "materials" => database.StreamMaterialsAsync(query, PageSize, token).Select(x => (object)x).GetAsyncEnumerator(token),
+            "manufacturers" => database.StreamManufacturersAsync(query, PageSize, token).Select(x => (object)x).GetAsyncEnumerator(token),
+            "spools" => database.StreamCarriersAsync(query, PageSize, token).Select(x => (object)x).GetAsyncEnumerator(token),
+            _ => AsyncEnumerable.Empty<object>().GetAsyncEnumerator(token)
+        };
     }
 
-    private async Task LoadMorePagedItemsAsync()
+    private async Task FetchNextNAsync(int n)
     {
-        isLoadingMore = true;
+        if (currentEnumerator is null)
+        {
+            hasMoreItems = false;
+            CanLoadMore = false;
+            return;
+        }
+
+        IsLoadingMore = true;
         try
         {
-            IReadOnlyList<object> items = sectionKey switch
+            var added = 0;
+            while (added < n)
             {
-                "materials" => (await database.GetMaterialsPagedAsync(currentOffset, PageSize)).Cast<object>().ToList(),
-                "manufacturers" => (await database.GetManufacturersPagedAsync(currentOffset, PageSize)).Cast<object>().ToList(),
-                _ => []
-            };
-            
-            currentOffset += items.Count;
-            hasMoreItems = currentOffset < totalItemCount;
-            CanLoadMore = hasMoreItems;
+                if (!await currentEnumerator.MoveNextAsync())
+                {
+                    hasMoreItems = false;
+                    CanLoadMore = false;
+                    break;
+                }
+                Items.Add(currentEnumerator.Current);
+                added++;
+                loadedCount++;
+            }
 
-            foreach (var item in items)
+            if (added > 0)
             {
-                Items.Add(item);
+                hasMoreItems = true; // assume more exists until enumerator ends
+                CanLoadMore = true;
+                SectionSummary = $"{loadedCount} items";
+            }
+            else if (loadedCount == 0)
+            {
+                EmptyStateMessage = "No items found.";
+                SectionSummary = "0 items";
             }
         }
         finally
         {
-            isLoadingMore = false;
-        }
-    }
-
-    private async Task LoadCarriersAsync()
-    {
-        var carriers = await database.GetCarriersAsync();
-        var ordered = carriers
-            .OrderBy(item => item.Manufacturer)
-            .ThenBy(item => item.SpoolType)
-            .ToList();
-
-        SectionSummary = $"{ordered.Count} carriers";
-        EmptyStateMessage = "No carriers have been added yet.";
-        sourceItems.AddRange(ordered);
-    }
-
-    private void ApplyFilter()
-    {
-        if (IsPagedSection())
-        {
-            return;
-        }
-
-        Items.Clear();
-        IEnumerable<object> filtered = sourceItems;
-
-        if (!string.IsNullOrWhiteSpace(SearchQuery))
-        {
-            var query = SearchQuery.Trim();
-            filtered = sourceItems.Where(item => MatchesSearch(item, query));
-        }
-
-        foreach (var item in filtered)
-        {
-            Items.Add(item);
+            IsLoadingMore = false;
         }
     }
 
@@ -251,12 +223,6 @@ public partial class CatalogSectionViewModel : ObservableObject, IQueryAttributa
 
         if (string.IsNullOrWhiteSpace(sectionKey))
         {
-            return;
-        }
-
-        if (!IsPagedSection())
-        {
-            ApplyFilter();
             return;
         }
 
@@ -277,30 +243,11 @@ public partial class CatalogSectionViewModel : ObservableObject, IQueryAttributa
             activeSearchQuery = query;
             isSearchMode = true;
             Items.Clear();
-
-            int searchTotal;
-            IReadOnlyList<object> results = sectionKey switch
-            {
-                "materials" => (await database.SearchMaterialsPagedAsync(query, 0, PageSize)).Cast<object>().ToList(),
-                "manufacturers" => (await database.SearchManufacturersPagedAsync(query, 0, PageSize)).Cast<object>().ToList(),
-                _ => []
-            };
-
-            searchTotal = sectionKey switch
-            {
-                "materials" => await database.SearchMaterialsCountAsync(query),
-                "manufacturers" => await database.SearchManufacturersCountAsync(query),
-                _ => 0
-            };
-
-            SectionSummary = $"{searchTotal} results";
-            EmptyStateMessage = $"No matches for \"{query}\".";
-
-            SetPaginationState(searchTotal, results.Count);
-            foreach (var item in results)
-            {
-                Items.Add(item);
-            }
+            ResetStreamState();
+            suppressSearchChange = true; // prevent immediate re-trigger
+            SearchQuery = query;
+            suppressSearchChange = false;
+            await StartNewStreamAsync();
         }
         finally
         {
@@ -315,77 +262,25 @@ public partial class CatalogSectionViewModel : ObservableObject, IQueryAttributa
             return;
         }
 
-        isLoadingMore = true;
+        IsLoadingMore = true;
         try
         {
-            IReadOnlyList<object> results = sectionKey switch
-            {
-                "materials" => (await database.SearchMaterialsPagedAsync(activeSearchQuery, currentOffset, PageSize)).Cast<object>().ToList(),
-                "manufacturers" => (await database.SearchManufacturersPagedAsync(activeSearchQuery, currentOffset, PageSize)).Cast<object>().ToList(),
-                _ => []
-            };
-
-            currentOffset += results.Count;
-            hasMoreItems = currentOffset < totalItemCount;
-            CanLoadMore = hasMoreItems;
-
-            foreach (var item in results)
-            {
-                Items.Add(item);
-            }
+            await FetchNextNAsync(PageSize);
         }
         finally
         {
-            isLoadingMore = false;
+            IsLoadingMore = false;
         }
     }
 
-    private static bool MatchesSearch(object item, string query)
+    private void ResetStreamState()
     {
-        return item switch
-        {
-            Manufacturer manufacturer =>
-                Contains(manufacturer.Name, query)
-                || Contains(manufacturer.Country, query)
-                || Contains(manufacturer.Website, query)
-                || Contains(manufacturer.Aliases, query),
-            Material material =>
-                Contains(material.Name, query)
-                || Contains(material.Manufacturer, query)
-                || Contains(material.Family.ToString(), query)
-                || Contains(material.AdditiveMaterial.ToString(), query)
-                || Contains(material.Color, query),
-            Carrier carrier =>
-                Contains(carrier.Manufacturer, query)
-                || Contains(carrier.SpoolType.ToString(), query),
-            _ => false
-        };
-    }
-
-    private static bool Contains(string? value, string query)
-    {
-        return !string.IsNullOrWhiteSpace(value)
-            && value.Contains(query, StringComparison.OrdinalIgnoreCase);
-    }
-
-    private bool IsPagedSection()
-    {
-        return sectionKey is "materials" or "manufacturers";
-    }
-
-    private void ResetPaginationState()
-    {
-        currentOffset = 0;
-        totalItemCount = 0;
+        loadedCount = 0;
         hasMoreItems = false;
         CanLoadMore = false;
-    }
-
-    private void SetPaginationState(int totalCount, int loadedCount)
-    {
-        totalItemCount = totalCount;
-        currentOffset = loadedCount;
-        hasMoreItems = currentOffset < totalItemCount;
-        CanLoadMore = hasMoreItems;
+        streamCts?.Cancel();
+        streamCts?.Dispose();
+        currentEnumerator?.DisposeAsync();
+        currentEnumerator = null;
     }
 }

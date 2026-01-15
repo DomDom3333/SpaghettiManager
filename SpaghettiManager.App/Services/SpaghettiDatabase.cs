@@ -380,45 +380,50 @@ public class SpaghettiDatabase
     }
 
 
-    public async Task<IReadOnlyList<Manufacturer>> GetManufacturersAsync()
-    {
-        await InitializeAsync();
-        return await connection.Table<Manufacturer>().ToListAsync();
-    }
+    // Removed non-yield manufacturer retrieval methods in favor of streaming-only APIs
 
-    public async Task<int> GetManufacturersCountAsync()
+    // Stream manufacturers in batches, optionally with a search query
+    public async IAsyncEnumerable<Manufacturer> StreamManufacturersAsync(
+        string? query = null,
+        int pageSize = 200,
+        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         await InitializeAsync();
-        return await connection.Table<Manufacturer>().CountAsync();
-    }
+        var offset = 0;
+        while (true)
+        {
+            IReadOnlyList<Manufacturer> batch;
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                batch = await connection.QueryAsync<Manufacturer>(
+                    "SELECT * FROM manufacturers ORDER BY Name LIMIT ? OFFSET ?",
+                    pageSize, offset);
+            }
+            else
+            {
+                var like = BuildLikeQuery(query!);
+                batch = await connection.QueryAsync<Manufacturer>(
+                    "SELECT * FROM manufacturers WHERE Name LIKE ? OR Country LIKE ? OR Website LIKE ? OR Aliases LIKE ? ORDER BY Name LIMIT ? OFFSET ?",
+                    like, like, like, like, pageSize, offset);
+            }
 
-    public async Task<IReadOnlyList<Manufacturer>> GetManufacturersPagedAsync(int offset, int limit)
-    {
-        await InitializeAsync();
-        return await connection.Table<Manufacturer>()
-            .OrderBy(m => m.Name)
-            .Skip(offset)
-            .Take(limit)
-            .ToListAsync();
-    }
+            if (batch.Count == 0)
+            {
+                yield break;
+            }
 
-    public async Task<int> SearchManufacturersCountAsync(string query)
-    {
-        await InitializeAsync();
-        var like = BuildLikeQuery(query);
-        var results = await connection.QueryAsync<CountResult>(
-            "SELECT COUNT(*) AS Count FROM manufacturers WHERE Name LIKE ? OR Country LIKE ? OR Website LIKE ? OR Aliases LIKE ?",
-            like, like, like, like);
-        return results.FirstOrDefault()?.Count ?? 0;
-    }
+            foreach (var item in batch)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                yield return item;
+            }
 
-    public async Task<IReadOnlyList<Manufacturer>> SearchManufacturersPagedAsync(string query, int offset, int limit)
-    {
-        await InitializeAsync();
-        var like = BuildLikeQuery(query);
-        return await connection.QueryAsync<Manufacturer>(
-            "SELECT * FROM manufacturers WHERE Name LIKE ? OR Country LIKE ? OR Website LIKE ? OR Aliases LIKE ? ORDER BY Name LIMIT ? OFFSET ?",
-            like, like, like, like, limit, offset);
+            offset += batch.Count;
+            if (batch.Count < pageSize)
+            {
+                yield break;
+            }
+        }
     }
 
     public async Task<int> SaveManufacturerAsync(Manufacturer manufacturer)
@@ -427,69 +432,64 @@ public class SpaghettiDatabase
         return await connection.InsertOrReplaceAsync(manufacturer);
     }
 
-    public async Task<IReadOnlyList<Material>> GetMaterialsAsync()
+    // Removed non-yield materials retrieval methods in favor of streaming-only APIs
+
+    // Stream materials in batches, optionally with a search query
+    public async IAsyncEnumerable<Material> StreamMaterialsAsync(
+        string? query = null,
+        int pageSize = 200,
+        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         await InitializeAsync();
-        return await connection.Table<Material>().ToListAsync();
+        var offset = 0;
+        while (true)
+        {
+            IReadOnlyList<Material> batch;
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                batch = await connection.QueryAsync<Material>(
+                    "SELECT * FROM materials ORDER BY Manufacturer, Name LIMIT ? OFFSET ?",
+                    pageSize, offset);
+            }
+            else
+            {
+                var like = BuildLikeQuery(query!);
+                batch = await connection.QueryAsync<Material>(
+                    "SELECT * FROM materials WHERE Name LIKE ? OR Manufacturer LIKE ? OR Color LIKE ? OR Notes LIKE ? ORDER BY Manufacturer, Name LIMIT ? OFFSET ?",
+                    like, like, like, like, pageSize, offset);
+            }
+
+            if (batch.Count == 0)
+            {
+                yield break;
+            }
+
+            foreach (var item in batch)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                yield return item;
+            }
+
+            offset += batch.Count;
+            if (batch.Count < pageSize)
+            {
+                yield break;
+            }
+        }
     }
 
-    public async Task<int> GetMaterialsCountAsync()
-    {
-        await InitializeAsync();
-        return await connection.Table<Material>().CountAsync();
-    }
-
-    public async Task<IReadOnlyList<Material>> GetMaterialsPagedAsync(int offset, int limit)
-    {
-        await InitializeAsync();
-        return await connection.Table<Material>()
-            .OrderBy(m => m.Manufacturer)
-            .ThenBy(m => m.Name)
-            .Skip(offset)
-            .Take(limit)
-            .ToListAsync();
-    }
-
-    public async Task<int> SearchMaterialsCountAsync(string query)
-    {
-        await InitializeAsync();
-        var like = BuildLikeQuery(query);
-        var results = await connection.QueryAsync<CountResult>(
-            "SELECT COUNT(*) AS Count FROM materials WHERE Name LIKE ? OR Manufacturer LIKE ? OR Color LIKE ? OR Notes LIKE ?",
-            like, like, like, like);
-        return results.FirstOrDefault()?.Count ?? 0;
-    }
-
-    public async Task<IReadOnlyList<Material>> SearchMaterialsPagedAsync(string query, int offset, int limit)
-    {
-        await InitializeAsync();
-        var like = BuildLikeQuery(query);
-        return await connection.QueryAsync<Material>(
-            "SELECT * FROM materials WHERE Name LIKE ? OR Manufacturer LIKE ? OR Color LIKE ? OR Notes LIKE ? ORDER BY Manufacturer, Name LIMIT ? OFFSET ?",
-            like, like, like, like, limit, offset);
-    }
-
-    public async Task<MaterialSummary> GetMaterialsSummaryAsync()
-    {
-        await InitializeAsync();
-        var totalCount = await connection.Table<Material>().CountAsync();
-        
-        // For family and manufacturer counts, we need to query
-        var allFamilies = await connection.QueryAsync<Material>("SELECT DISTINCT Family FROM materials");
-        var allManufacturers = await connection.QueryAsync<Material>(
-            "SELECT DISTINCT Manufacturer FROM materials WHERE Manufacturer IS NOT NULL AND Manufacturer != ''");
-        
-        return new MaterialSummary(totalCount, allFamilies.Count, allManufacturers.Count);
-    }
-
-    public record MaterialSummary(int TotalCount, int FamilyCount, int ManufacturerCount);
+    // Removed MaterialsSummary; consumers should derive summaries from streamed data if needed
 
     private static string BuildLikeQuery(string query)
     {
         return $"%{query}%";
     }
 
-    private sealed record CountResult(int Count);
+    // Helper DTO for COUNT(*) queries. Must have a parameterless constructor for SQLite mapper
+    private sealed class CountResult
+    {
+        public int Count { get; set; }
+    }
 
     public async Task<int> SaveMaterialAsync(Material material)
     {
@@ -503,88 +503,146 @@ public class SpaghettiDatabase
         return await connection.Table<Carrier>().ToListAsync();
     }
 
+    // Removed non-yield carrier retrieval methods in favor of streaming-only APIs
+
+    // Stream carriers in batches, optionally with a search query
+    public async IAsyncEnumerable<Carrier> StreamCarriersAsync(
+        string? query = null,
+        int pageSize = 200,
+        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        await InitializeAsync();
+        var offset = 0;
+        while (true)
+        {
+            IReadOnlyList<Carrier> batch;
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                batch = await connection.QueryAsync<Carrier>(
+                    "SELECT * FROM carriers ORDER BY Manufacturer, SpoolType LIMIT ? OFFSET ?",
+                    pageSize, offset);
+            }
+            else
+            {
+                var like = BuildLikeQuery(query!);
+                batch = await connection.QueryAsync<Carrier>(
+                    "SELECT * FROM carriers WHERE Manufacturer LIKE ? ORDER BY Manufacturer, SpoolType LIMIT ? OFFSET ?",
+                    like, pageSize, offset);
+            }
+
+            if (batch.Count == 0)
+            {
+                yield break;
+            }
+
+            foreach (var item in batch)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                yield return item;
+            }
+
+            offset += batch.Count;
+            if (batch.Count < pageSize)
+            {
+                yield break;
+            }
+        }
+    }
+
     public async Task<int> SaveCarrierAsync(Carrier carrier)
     {
         await InitializeAsync();
         return await connection.InsertOrReplaceAsync(carrier);
     }
 
-    public async Task<IReadOnlyList<Spool>> GetSpoolsAsync()
+    // Streaming API for spools with optional filters; yields hydrated spools incrementally
+    public async IAsyncEnumerable<Spool> StreamSpoolsAsync(
+        Guid? materialId = null,
+        Guid? carrierId = null,
+        int? barcode = null,
+        string? query = null,
+        int pageSize = 200,
+        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         await InitializeAsync();
 
-        var spools = await connection.Table<Spool>().ToListAsync();
-        if (spools.Count == 0)
+        var whereClauses = new List<string>();
+        var parameters = new List<object>();
+
+        if (materialId is { } mid)
         {
-            return spools;
+            whereClauses.Add("MaterialId = ?");
+            parameters.Add(mid);
+        }
+        if (carrierId is { } cid)
+        {
+            whereClauses.Add("CarrierId = ?");
+            parameters.Add(cid);
+        }
+        if (barcode is { } bc)
+        {
+            whereClauses.Add("Barcode = ?");
+            parameters.Add(bc);
+        }
+        if (!string.IsNullOrWhiteSpace(query))
+        {
+            // Simple text filter over MaterialId/CarrierId is not helpful; keep for future columns
+            // For now, ignore generic query unless specific columns exist
         }
 
-        var materials = await connection.Table<Material>().ToListAsync();
-        var carriers = await connection.Table<Carrier>().ToListAsync();
+        var whereSql = whereClauses.Count > 0 ? (" WHERE " + string.Join(" AND ", whereClauses)) : string.Empty;
 
-        var materialLookup = materials.ToDictionary(item => item.Id);
-        var carrierLookup = carriers.ToDictionary(item => item.Id);
-
-        foreach (var spool in spools)
+        var offset = 0;
+        while (true)
         {
-            if (materialLookup.TryGetValue(spool.MaterialId, out var material))
+            var sql = $"SELECT * FROM spools{whereSql} ORDER BY LastUpdatedAt DESC, Id LIMIT ? OFFSET ?";
+            var batchParams = new List<object>(parameters) { pageSize, offset };
+            var spools = await connection.QueryAsync<Spool>(sql, batchParams.ToArray());
+
+            if (spools.Count == 0)
             {
-                spool.Material = material;
-            }
-            else
-            {
-                spool.Material = new Material { Id = spool.MaterialId };
+                yield break;
             }
 
-            if (carrierLookup.TryGetValue(spool.CarrierId, out var carrier))
+            // Hydrate related entities per batch
+            var materialIds = spools.Select(s => s.MaterialId).Distinct().ToList();
+            var carrierIds = spools.Select(s => s.CarrierId).Distinct().ToList();
+
+            Dictionary<Guid, Material> materialLookup = new();
+            Dictionary<Guid, Carrier> carrierLookup = new();
+
+            if (materialIds.Count > 0)
             {
-                spool.Carrier = carrier;
+                var matPlaceholders = string.Join(",", Enumerable.Repeat("?", materialIds.Count));
+                var mats = await connection.QueryAsync<Material>($"SELECT * FROM materials WHERE Id IN ({matPlaceholders})", materialIds.Cast<object>().ToArray());
+                materialLookup = mats.ToDictionary(m => m.Id);
             }
-            else
+
+            if (carrierIds.Count > 0)
             {
-                spool.Carrier = new Carrier { Id = spool.CarrierId };
+                var carPlaceholders = string.Join(",", Enumerable.Repeat("?", carrierIds.Count));
+                var cars = await connection.QueryAsync<Carrier>($"SELECT * FROM carriers WHERE Id IN ({carPlaceholders})", carrierIds.Cast<object>().ToArray());
+                carrierLookup = cars.ToDictionary(c => c.Id);
+            }
+
+            foreach (var spool in spools)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                spool.Material = materialLookup.TryGetValue(spool.MaterialId, out var m)
+                    ? m
+                    : new Material { Id = spool.MaterialId };
+                spool.Carrier = carrierLookup.TryGetValue(spool.CarrierId, out var c)
+                    ? c
+                    : new Carrier { Id = spool.CarrierId };
+                yield return spool;
+            }
+
+            offset += spools.Count;
+            if (spools.Count < pageSize)
+            {
+                yield break;
             }
         }
-
-        return spools;
-    }
-
-    public async Task<Spool?> GetSpoolByBarcodeAsync(int barcode)
-    {
-        await InitializeAsync();
-
-        var spool = await connection.Table<Spool>()
-            .Where(item => item.Barcode == barcode)
-            .FirstOrDefaultAsync();
-        if (spool is null)
-        {
-            return null;
-        }
-
-        spool.Material = await connection.FindAsync<Material>(spool.MaterialId)
-            ?? new Material { Id = spool.MaterialId };
-        spool.Carrier = await connection.FindAsync<Carrier>(spool.CarrierId)
-            ?? new Carrier { Id = spool.CarrierId };
-
-        return spool;
-    }
-
-    public async Task<Spool?> GetSpoolAsync(Guid spoolId)
-    {
-        await InitializeAsync();
-
-        var spool = await connection.FindAsync<Spool>(spoolId);
-        if (spool is null)
-        {
-            return null;
-        }
-
-        spool.Material = await connection.FindAsync<Material>(spool.MaterialId)
-            ?? new Material { Id = spool.MaterialId };
-        spool.Carrier = await connection.FindAsync<Carrier>(spool.CarrierId)
-            ?? new Carrier { Id = spool.CarrierId };
-
-        return spool;
     }
 
     public async Task<int> SaveSpoolAsync(Spool spool)

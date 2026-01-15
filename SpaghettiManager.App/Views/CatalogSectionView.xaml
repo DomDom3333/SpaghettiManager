@@ -58,19 +58,34 @@
             x:Key="CatalogItemTemplateSelector" />
     </ContentView.Resources>
 
-    <VerticalStackLayout Padding="16" Spacing="16">
-        <Label FontAttributes="Bold" Text="{Binding SectionTitle}" />
+    <Grid Padding="16" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Label
+            FontAttributes="Bold"
+            Grid.Row="0"
+            Text="{Binding SectionTitle}" />
+
         <Label
             FontSize="12"
+            Grid.Row="1"
             Text="{Binding SectionSummary}"
             TextColor="{DynamicResource SecondaryTextColor}" />
 
         <SearchBar
+            Grid.Row="2"
             IsVisible="{Binding SupportsSearch}"
             Placeholder="Search catalog"
             Text="{Binding SearchQuery}" />
 
         <CollectionView
+            Grid.Row="3"
             ItemTemplate="{StaticResource CatalogItemTemplateSelector}"
             ItemsSource="{Binding Items}"
             RemainingItemsThreshold="5"
@@ -85,8 +100,9 @@
         </CollectionView>
 
         <ActivityIndicator
+            Grid.Row="4"
             HorizontalOptions="Center"
-            IsRunning="{Binding CanLoadMore}"
-            IsVisible="{Binding CanLoadMore}" />
-    </VerticalStackLayout>
+            IsRunning="{Binding IsLoadingMore}"
+            IsVisible="{Binding IsLoadingMore}" />
+    </Grid>
 </ContentView>
