@@ -1,10 +1,13 @@
-﻿using SpaghettiManager.Model;
+﻿using SpaghettiManager.App.Services;
+using SpaghettiManager.Model;
 using SpaghettiManager.Model.Records;
 
 namespace SpaghettiManager.App.ViewModels;
 
 public partial class ScanReviewViewModel : ObservableObject, IQueryAttributable
 {
+    private readonly SpaghettiDatabase database;
+
     [ObservableProperty]
     private string summaryTitle = "Unknown filament";
 
@@ -15,10 +18,30 @@ public partial class ScanReviewViewModel : ObservableObject, IQueryAttributable
     private bool saveEanMapping;
 
     [ObservableProperty]
+    private bool hasExistingMapping;
+
+    [ObservableProperty]
+    private string mappingStatusTitle = "No catalog match yet";
+
+    [ObservableProperty]
+    private string mappingStatusSubtitle = "Save this barcode mapping to speed up future scans.";
+
+    [ObservableProperty]
     private Spool scannedSpool = CreateSampleSpool();
+
+    public ScanReviewViewModel(SpaghettiDatabase database)
+    {
+        this.database = database;
+    }
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
+        if (query.TryGetValue("barcode", out var barcodeValue))
+        {
+            _ = LoadFromBarcodeAsync(barcodeValue?.ToString());
+            return;
+        }
+
         LoadSample();
     }
 
@@ -39,6 +62,42 @@ public partial class ScanReviewViewModel : ObservableObject, IQueryAttributable
         ScannedSpool = CreateSampleSpool();
         SummaryTitle = $"{ScannedSpool.Manufacturer} {ScannedSpool.Material.Name}";
         SummarySubtitle = $"{ScannedSpool.Material.Color} • {ScannedSpool.Material.DiameterMm} mm";
+        SaveEanMapping = true;
+        HasExistingMapping = false;
+        MappingStatusTitle = "No catalog match yet";
+        MappingStatusSubtitle = "Save this barcode mapping to speed up future scans.";
+    }
+
+    private async Task LoadFromBarcodeAsync(string? barcodeValue)
+    {
+        if (!int.TryParse(barcodeValue, out var barcode))
+        {
+            LoadSample();
+            return;
+        }
+
+        var existingSpool = await database.GetSpoolByBarcodeAsync(barcode);
+        if (existingSpool is not null)
+        {
+            ScannedSpool = existingSpool;
+            SummaryTitle = $"{ScannedSpool.Manufacturer} {ScannedSpool.Material.Name}";
+            SummarySubtitle = $"{ScannedSpool.Material.Color} • {ScannedSpool.Material.DiameterMm} mm";
+            SaveEanMapping = false;
+            HasExistingMapping = true;
+            MappingStatusTitle = "Existing catalog match";
+            MappingStatusSubtitle = "This barcode already has a saved mapping.";
+            return;
+        }
+
+        var sample = CreateSampleSpool();
+        sample.Barcode = barcode;
+        ScannedSpool = sample;
+        SummaryTitle = $"{ScannedSpool.Manufacturer} {ScannedSpool.Material.Name}";
+        SummarySubtitle = $"{ScannedSpool.Material.Color} • {ScannedSpool.Material.DiameterMm} mm";
+        SaveEanMapping = true;
+        HasExistingMapping = false;
+        MappingStatusTitle = "No catalog match yet";
+        MappingStatusSubtitle = "Save this barcode mapping to speed up future scans.";
     }
 
     private static Spool CreateSampleSpool()

@@ -456,6 +456,26 @@ public class SpaghettiDatabase
         return spools;
     }
 
+    public async Task<Spool?> GetSpoolByBarcodeAsync(int barcode)
+    {
+        await InitializeAsync();
+
+        var spool = await connection.Table<Spool>()
+            .Where(item => item.Barcode == barcode)
+            .FirstOrDefaultAsync();
+        if (spool is null)
+        {
+            return null;
+        }
+
+        spool.Material = await connection.FindAsync<Material>(spool.MaterialId)
+            ?? new Material { Id = spool.MaterialId };
+        spool.Carrier = await connection.FindAsync<Carrier>(spool.CarrierId)
+            ?? new Carrier { Id = spool.CarrierId };
+
+        return spool;
+    }
+
     public async Task<Spool?> GetSpoolAsync(Guid spoolId)
     {
         await InitializeAsync();

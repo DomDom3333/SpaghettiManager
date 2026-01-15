@@ -1,62 +1,28 @@
-﻿using SpaghettiManager.Model;
+﻿using SpaghettiManager.App.Services;
+using SpaghettiManager.Model;
 using SpaghettiManager.Model.Records;
 
 namespace SpaghettiManager.App.ViewModels;
 
 public partial class CatalogEanMappingsViewModel : ObservableObject
 {
+    private readonly SpaghettiDatabase database;
+
+    [ObservableProperty]
+    private bool isLoading;
+
+    [ObservableProperty]
+    private string summary = string.Empty;
+
+    [ObservableProperty]
+    private string emptyMessage = "No barcode mappings have been added yet.";
+
     public ObservableCollection<Spool> Mappings { get; } = new();
 
-    public CatalogEanMappingsViewModel()
+    public CatalogEanMappingsViewModel(SpaghettiDatabase database)
     {
-        Mappings.Add(new Spool
-        {
-            Manufacturer = "Overture",
-            Barcode = 1234567890,
-            BarcodeType = Enums.BarcodeType.Ean,
-            Material = new Material
-            {
-                Name = "PLA Professional",
-                Family = Enums.MaterialFamily.Pla,
-                Manufacturer = "Overture",
-                DiameterMm = 1.75m,
-                Finish = Enums.Finish.Glossy,
-                Opacity = Enums.Opacity.Opaque
-            },
-            Carrier = new Carrier
-            {
-                Manufacturer = "Overture",
-                SpoolType = Enums.SpoolType.GenericPlastic,
-                EmptyWeightGrams = 200,
-                SpoolRadius = 100,
-                SpoolHubRadius = 30,
-                SpoolHeight = 70
-            }
-        });
-        Mappings.Add(new Spool
-        {
-            Manufacturer = "Prusament",
-            Barcode = 987654321,
-            BarcodeType = Enums.BarcodeType.Ean,
-            Material = new Material
-            {
-                Name = "PETG",
-                Family = Enums.MaterialFamily.PetCopolyester,
-                Manufacturer = "Prusament",
-                DiameterMm = 1.75m,
-                Finish = Enums.Finish.Silk,
-                Opacity = Enums.Opacity.Opaque
-            },
-            Carrier = new Carrier
-            {
-                Manufacturer = "Prusa",
-                SpoolType = Enums.SpoolType.GenericPlastic,
-                EmptyWeightGrams = 245,
-                SpoolRadius = 100,
-                SpoolHubRadius = 30,
-                SpoolHeight = 70
-            }
-        });
+        this.database = database;
+        _ = LoadMappingsAsync();
     }
 
     [RelayCommand]
@@ -75,5 +41,26 @@ public partial class CatalogEanMappingsViewModel : ObservableObject
     private Task MergeMappingAsync(Spool item)
     {
         return Task.CompletedTask;
+    }
+
+    private async Task LoadMappingsAsync()
+    {
+        IsLoading = true;
+        try
+        {
+            Mappings.Clear();
+
+            var mappings = await database.GetSpoolsAsync();
+            foreach (var mapping in mappings.OrderByDescending(item => item.LastUpdatedAt))
+            {
+                Mappings.Add(mapping);
+            }
+
+            Summary = $"{Mappings.Count} barcode mappings";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
     }
 }

@@ -21,10 +21,21 @@
         </DataTemplate>
         <DataTemplate x:Key="MaterialTemplate" x:DataType="modelRecords:Material">
             <Frame Margin="0,4" Padding="12">
-                <VerticalStackLayout Spacing="4">
+                <VerticalStackLayout Spacing="6">
                     <Label FontAttributes="Bold" Text="{Binding Name}" />
-                    <Label FontSize="12" Text="{Binding Family}" />
-                    <Label FontSize="12" Text="{Binding Manufacturer}" />
+                    <HorizontalStackLayout Spacing="8">
+                        <Label FontSize="12" Text="{Binding Family}" />
+                        <Label FontSize="12" Text="{Binding AdditiveMaterial}" />
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="8">
+                        <Label FontSize="12" Text="{Binding Manufacturer}" />
+                        <Label FontSize="12" Text="{Binding DiameterMm, StringFormat='{0} mm'}" />
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="8">
+                        <BoxView Color="{Binding Color}" HeightRequest="12" WidthRequest="12" />
+                        <Label FontSize="12" Text="{Binding Finish}" />
+                        <Label FontSize="12" Text="{Binding Opacity}" />
+                    </HorizontalStackLayout>
                 </VerticalStackLayout>
             </Frame>
         </DataTemplate>
@@ -46,6 +57,21 @@
 
     <VerticalStackLayout Padding="16" Spacing="16">
         <Label FontAttributes="Bold" Text="{Binding SectionTitle}" />
-        <CollectionView ItemTemplate="{StaticResource CatalogItemTemplateSelector}" ItemsSource="{Binding Items}" />
+        <Label FontSize="12" Text="{Binding SectionSummary}" TextColor="{DynamicResource SecondaryTextColor}" />
+
+        <SearchBar
+            IsVisible="{Binding SupportsSearch}"
+            Placeholder="Search catalog"
+            Text="{Binding SearchQuery}" />
+
+        <CollectionView ItemTemplate="{StaticResource CatalogItemTemplateSelector}" ItemsSource="{Binding Items}">
+            <CollectionView.EmptyView>
+                <Label
+                    FontSize="12"
+                    HorizontalOptions="Center"
+                    Text="{Binding EmptyStateMessage}"
+                    TextColor="{DynamicResource SecondaryTextColor}" />
+            </CollectionView.EmptyView>
+        </CollectionView>
     </VerticalStackLayout>
 </ContentView>
