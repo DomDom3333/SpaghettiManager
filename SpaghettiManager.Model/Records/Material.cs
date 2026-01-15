@@ -1,7 +1,11 @@
-﻿namespace SpaghettiManager.Model.Records;
+﻿using SQLite;
 
+namespace SpaghettiManager.Model.Records;
+
+[Table("materials")]
 public sealed record Material
 {
+    [PrimaryKey]
     public Guid Id { get; init; } = Guid.NewGuid();
 
     public Enums.MaterialFamily Family { get; set; }

@@ -1,7 +1,11 @@
-﻿namespace SpaghettiManager.Model.Records;
+﻿using SQLite;
 
+namespace SpaghettiManager.Model.Records;
+
+[Table("carriers")]
 public sealed record Carrier
 {
+    [PrimaryKey]
     public Guid Id { get; init; } = Guid.NewGuid();
     public Enums.SpoolType SpoolType { get; set; }
     public int EmptyWeightGrams { get; set; }
