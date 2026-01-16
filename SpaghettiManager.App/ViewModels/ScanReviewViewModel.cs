@@ -7,6 +7,7 @@ namespace SpaghettiManager.App.ViewModels;
 public partial class ScanReviewViewModel : ObservableObject, IQueryAttributable
 {
     private readonly SpaghettiDatabase database;
+    private readonly EanSearchBarcodeService barcodeService;
 
     [ObservableProperty]
     private string summaryTitle = "Unknown filament";
@@ -29,9 +30,10 @@ public partial class ScanReviewViewModel : ObservableObject, IQueryAttributable
     [ObservableProperty]
     private Spool scannedSpool = CreateSampleSpool();
 
-    public ScanReviewViewModel(SpaghettiDatabase database)
+    public ScanReviewViewModel(SpaghettiDatabase database, EanSearchBarcodeService barcodeService)
     {
         this.database = database;
+        this.barcodeService = barcodeService;
     }
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
@@ -76,17 +78,41 @@ public partial class ScanReviewViewModel : ObservableObject, IQueryAttributable
             return;
         }
 
-        Spool? existingSpool = null;
-        await foreach (var s in database.StreamSpoolsAsync(barcode: barcode, pageSize: 1))
+        var lookup = await barcodeService.LookupAndMapAsync(barcodeValue!);
+        var spool = CreateSampleSpool();
+        spool.Barcode = barcode;
+        spool.BarcodeType = lookup.BarcodeType;
+
+        if (lookup.Material is not null)
         {
-            existingSpool = s;
-            break;
+            spool.Material = lookup.Material;
+            spool.MaterialId = lookup.Material.Id;
         }
-        if (existingSpool is not null)
+
+        if (!string.IsNullOrWhiteSpace(lookup.Brand))
         {
-            ScannedSpool = existingSpool;
-            SummaryTitle = $"{ScannedSpool.Manufacturer} {ScannedSpool.Material.Name}";
-            SummarySubtitle = $"{ScannedSpool.Material.Color} • {ScannedSpool.Material.DiameterMm} mm";
+            spool.Manufacturer = lookup.Brand;
+        }
+
+        ScannedSpool = spool;
+        SummaryTitle = !string.IsNullOrWhiteSpace(lookup.ProductName)
+            ? lookup.ProductName
+            : $"{ScannedSpool.Manufacturer} {ScannedSpool.Material.Name}";
+        SummarySubtitle = !string.IsNullOrWhiteSpace(lookup.Category)
+            ? lookup.Category
+            : $"{ScannedSpool.Material.Color} • {ScannedSpool.Material.DiameterMm} mm";
+
+        if (lookup.AddedMapping)
+        {
+            SaveEanMapping = false;
+            HasExistingMapping = true;
+            MappingStatusTitle = "Catalog match saved";
+            MappingStatusSubtitle = "Barcode mapping stored for future scans.";
+            return;
+        }
+
+        if (lookup.Material is not null)
+        {
             SaveEanMapping = false;
             HasExistingMapping = true;
             MappingStatusTitle = "Existing catalog match";
@@ -94,15 +120,10 @@ public partial class ScanReviewViewModel : ObservableObject, IQueryAttributable
             return;
         }
 
-        var sample = CreateSampleSpool();
-        sample.Barcode = barcode;
-        ScannedSpool = sample;
-        SummaryTitle = $"{ScannedSpool.Manufacturer} {ScannedSpool.Material.Name}";
-        SummarySubtitle = $"{ScannedSpool.Material.Color} • {ScannedSpool.Material.DiameterMm} mm";
-        SaveEanMapping = true;
+        SaveEanMapping = false;
         HasExistingMapping = false;
         MappingStatusTitle = "No catalog match yet";
-        MappingStatusSubtitle = "Save this barcode mapping to speed up future scans.";
+        MappingStatusSubtitle = lookup.ErrorMessage ?? "No matching catalog item was found.";
     }
 
     private static Spool CreateSampleSpool()
