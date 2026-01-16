@@ -13,6 +13,7 @@ using Polly;
 using Polly.Retry;
 using Shiny.Extensions.Stores;
 using SpaghettiManager.App.Pages;
+using SpaghettiManager.App.Services;
 using SpaghettiManager.App.ViewModels;
 
 namespace SpaghettiManager.App;
@@ -69,6 +70,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<AppShell>();
         builder.Services.AddSingleton<MySqliteConnection>();
         builder.Services.AddSingleton<SpaghettiDatabase>();
+        builder.Services.AddHttpClient<EanSearchBarcodeService>();
 
         builder.Services.AddTransient<MainPage>();
         builder.Services.AddTransient<InventoryListPage>();

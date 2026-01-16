@@ -70,7 +70,7 @@ public partial class ScanReviewViewModel : ObservableObject, IQueryAttributable
 
     private async Task LoadFromBarcodeAsync(string? barcodeValue)
     {
-        if (!int.TryParse(barcodeValue, out var barcode))
+        if (!long.TryParse(barcodeValue, out var barcode))
         {
             LoadSample();
             return;

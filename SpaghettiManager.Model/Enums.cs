@@ -65,6 +65,8 @@ public static class Enums
     {
         Unknown = 0,
         Ean = 1,
+        Upc = 2,
+        Other = 3,
     }
     
     public enum SpoolType : short

@@ -559,7 +559,7 @@ public class SpaghettiDatabase
     public async IAsyncEnumerable<Spool> StreamSpoolsAsync(
         Guid? materialId = null,
         Guid? carrierId = null,
-        int? barcode = null,
+        long? barcode = null,
         string? query = null,
         int pageSize = 200,
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)

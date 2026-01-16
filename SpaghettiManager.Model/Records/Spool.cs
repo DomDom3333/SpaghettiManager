@@ -7,7 +7,7 @@ public sealed record Spool
 {
     [PrimaryKey]
     public Guid Id { get; init; } = Guid.NewGuid();
-    public int Barcode { get; set; }
+    public long Barcode { get; set; }
     public Enums.BarcodeType BarcodeType { get; set; }
 
     [Indexed]
