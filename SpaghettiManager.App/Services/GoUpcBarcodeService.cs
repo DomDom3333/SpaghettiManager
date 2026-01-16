@@ -17,16 +17,17 @@ public sealed record BarcodeLookupResult(
     bool AddedMapping,
     string? ErrorMessage);
 
-public sealed class EanSearchBarcodeService
+public sealed class GoUpcBarcodeService
 {
     private static readonly Regex TableRowRegex = new("<tr[^>]*>(.*?)</tr>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
     private static readonly Regex CellRegex = new("<t[dh][^>]*>(.*?)</t[dh]>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+    private static readonly Regex ListItemRegex = new("<li[^>]*>\\s*<span[^>]*class=\\\"metadata-label\\\"[^>]*>(.*?)</span>(.*?)</li>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
     private static readonly Regex TagRegex = new("<[^>]+>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
     private readonly HttpClient httpClient;
     private readonly SpaghettiDatabase database;
 
-    public EanSearchBarcodeService(HttpClient httpClient, SpaghettiDatabase database)
+    public GoUpcBarcodeService(HttpClient httpClient, SpaghettiDatabase database)
     {
         this.httpClient = httpClient;
         this.database = database;
@@ -90,7 +91,7 @@ public sealed class EanSearchBarcodeService
 
     private async Task<string> FetchHtmlAsync(string barcode, CancellationToken cancellationToken)
     {
-        using var request = new HttpRequestMessage(HttpMethod.Get, $"https://www.ean-search.org/?q={Uri.EscapeDataString(barcode)}");
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"https://go-upc.com/search?q={Uri.EscapeDataString(barcode)}");
         request.Headers.UserAgent.Add(new ProductInfoHeaderValue("SpaghettiManager", "1.0"));
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/html"));
         request.Headers.AcceptLanguage.Add(new StringWithQualityHeaderValue("en"));
@@ -110,7 +111,7 @@ public sealed class EanSearchBarcodeService
         return null;
     }
 
-    private static EanSearchLookupInfo? ParseHtml(string html, string barcode, Enums.BarcodeType barcodeType)
+    private static GoUpcLookupInfo? ParseHtml(string html, string barcode, Enums.BarcodeType barcodeType)
     {
         if (string.IsNullOrWhiteSpace(html))
         {
@@ -118,98 +119,23 @@ public sealed class EanSearchBarcodeService
         }
 
         var entries = ExtractKeyValues(html);
-        var productName = FindValue(entries, "Product name", "Product", "Name", "Description", "Title");
-        var brand = FindValue(entries, "Brand", "Manufacturer", "Company", "Issuer", "Producent", "Maker");
+        var productName = ExtractProductName(html);
+        productName ??= FindValue(entries, "Product", "Name", "Title");
+        var brand = FindValue(entries, "Brand", "Manufacturer", "Marken");
         var category = FindValue(entries, "Category", "Group", "Type");
 
-        productName ??= ExtractHeadline(html);
-        productName ??= ExtractProductLineFromLink(html, barcode);
-        productName ??= ExtractProductLineFromText(html, barcode);
         if (string.IsNullOrWhiteSpace(brand) && !string.IsNullOrWhiteSpace(productName))
         {
             brand = DeriveBrandFromProductName(productName);
         }
 
-        return new EanSearchLookupInfo(barcode, barcodeType, productName, brand, category, entries);
+        return new GoUpcLookupInfo(barcode, barcodeType, productName, brand, category, entries);
     }
 
-    private static string? ExtractHeadline(string html)
+    private static string? ExtractProductName(string html)
     {
-        var headline = ExtractFirstMatch(html, "<h1[^>]*>(.*?)</h1>")
-            ?? ExtractFirstMatch(html, "<h2[^>]*class=\"product-name\"[^>]*>(.*?)</h2>")
-            ?? ExtractFirstMatch(html, "<h2[^>]*>(.*?)</h2>");
-
-        return headline;
-    }
-
-    private static string? ExtractProductLineFromText(string html, string barcode)
-    {
-        var text = StripHtml(html);
-        var lines = text.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries)
-            .Select(line => line.Trim())
-            .Where(line => line.Length >= 8 && line.Length <= 140)
-            .Where(line => !line.Contains("Access denied", StringComparison.OrdinalIgnoreCase))
-            .ToList();
-
-        if (lines.Count == 0)
-        {
-            return null;
-        }
-
-        var candidates = lines
-            .Select(line => new { Line = line, Score = ScoreCandidateLine(line, barcode) })
-            .Where(item => item.Score > 0)
-            .OrderByDescending(item => item.Score)
-            .ToList();
-
-        return candidates.Count > 0 ? candidates[0].Line : null;
-    }
-
-    private static string? ExtractProductLineFromLink(string html, string barcode)
-    {
-        if (string.IsNullOrWhiteSpace(barcode))
-        {
-            return null;
-        }
-
-        var pattern = $"<a[^>]*href=\\\"/ean/{Regex.Escape(barcode)}\\\"[^>]*>(.*?)</a>";
-        var match = Regex.Match(html, pattern, RegexOptions.IgnoreCase | RegexOptions.Singleline);
-        if (!match.Success)
-        {
-            return null;
-        }
-
-        return CleanHtml(match.Groups[1].Value);
-    }
-
-    private static int ScoreCandidateLine(string line, string barcode)
-    {
-        var score = 0;
-        if (line.Contains("mm", StringComparison.OrdinalIgnoreCase))
-        {
-            score += 2;
-        }
-        if (line.Contains("kg", StringComparison.OrdinalIgnoreCase) || line.Contains(" g", StringComparison.OrdinalIgnoreCase))
-        {
-            score += 2;
-        }
-        if (line.Contains("PLA", StringComparison.OrdinalIgnoreCase)
-            || line.Contains("PETG", StringComparison.OrdinalIgnoreCase)
-            || line.Contains("ABS", StringComparison.OrdinalIgnoreCase)
-            || line.Contains("Filament", StringComparison.OrdinalIgnoreCase))
-        {
-            score += 3;
-        }
-        if (!string.IsNullOrWhiteSpace(barcode) && line.Contains(barcode, StringComparison.OrdinalIgnoreCase))
-        {
-            score -= 2;
-        }
-        if (line.Any(char.IsLetter) && line.Any(char.IsDigit))
-        {
-            score += 1;
-        }
-
-        return score;
+        return ExtractFirstMatch(html, "<h1[^>]*class=\"product-name\"[^>]*>(.*?)</h1>")
+            ?? ExtractFirstMatch(html, "<title[^>]*>(.*?)</title>");
     }
 
     private static string? DeriveBrandFromProductName(string productName)
@@ -242,6 +168,21 @@ public sealed class EanSearchBarcodeService
 
             var key = CleanHtml(cells[0].Groups[1].Value);
             var value = CleanHtml(cells[1].Groups[1].Value);
+            if (string.IsNullOrWhiteSpace(key) || string.IsNullOrWhiteSpace(value))
+            {
+                continue;
+            }
+
+            if (!result.ContainsKey(key))
+            {
+                result[key] = value;
+            }
+        }
+
+        foreach (Match match in ListItemRegex.Matches(html))
+        {
+            var key = CleanHtml(match.Groups[1].Value).TrimEnd(':');
+            var value = CleanHtml(match.Groups[2].Value);
             if (string.IsNullOrWhiteSpace(key) || string.IsNullOrWhiteSpace(value))
             {
                 continue;
@@ -296,7 +237,7 @@ public sealed class EanSearchBarcodeService
         };
     }
 
-    private async Task<Material?> FindMaterialMatchAsync(EanSearchLookupInfo info, CancellationToken cancellationToken)
+    private async Task<Material?> FindMaterialMatchAsync(GoUpcLookupInfo info, CancellationToken cancellationToken)
     {
         var query = info.Brand ?? info.ProductName;
         if (string.IsNullOrWhiteSpace(query))
@@ -325,7 +266,7 @@ public sealed class EanSearchBarcodeService
         return bestScore > 0 ? bestMatch : null;
     }
 
-    private static int ScoreMatch(Material material, EanSearchLookupInfo info)
+    private static int ScoreMatch(Material material, GoUpcLookupInfo info)
     {
         var score = 0;
         if (!string.IsNullOrWhiteSpace(info.Brand) && !string.IsNullOrWhiteSpace(material.Manufacturer))
@@ -371,20 +312,7 @@ public sealed class EanSearchBarcodeService
         return WebUtility.HtmlDecode(noTags).Trim();
     }
 
-    private static string StripHtml(string html)
-    {
-        if (string.IsNullOrWhiteSpace(html))
-        {
-            return string.Empty;
-        }
-
-        var withoutScripts = Regex.Replace(html, "<script[^>]*>.*?</script>", string.Empty, RegexOptions.Singleline | RegexOptions.IgnoreCase);
-        var withoutStyles = Regex.Replace(withoutScripts, "<style[^>]*>.*?</style>", string.Empty, RegexOptions.Singleline | RegexOptions.IgnoreCase);
-        var noTags = TagRegex.Replace(withoutStyles, "\n");
-        return WebUtility.HtmlDecode(noTags);
-    }
-
-    private sealed record EanSearchLookupInfo(
+    private sealed record GoUpcLookupInfo(
         string Barcode,
         Enums.BarcodeType BarcodeType,
         string? ProductName,

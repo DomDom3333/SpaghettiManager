@@ -7,7 +7,7 @@ namespace SpaghettiManager.App.ViewModels;
 public partial class ScanReviewViewModel : ObservableObject, IQueryAttributable
 {
     private readonly SpaghettiDatabase database;
-    private readonly EanSearchBarcodeService barcodeService;
+    private readonly GoUpcBarcodeService barcodeService;
 
     [ObservableProperty]
     private string summaryTitle = "Unknown filament";
@@ -30,7 +30,7 @@ public partial class ScanReviewViewModel : ObservableObject, IQueryAttributable
     [ObservableProperty]
     private Spool scannedSpool = CreateSampleSpool();
 
-    public ScanReviewViewModel(SpaghettiDatabase database, EanSearchBarcodeService barcodeService)
+    public ScanReviewViewModel(SpaghettiDatabase database, GoUpcBarcodeService barcodeService)
     {
         this.database = database;
         this.barcodeService = barcodeService;

@@ -70,7 +70,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<AppShell>();
         builder.Services.AddSingleton<MySqliteConnection>();
         builder.Services.AddSingleton<SpaghettiDatabase>();
-        builder.Services.AddHttpClient<EanSearchBarcodeService>();
+        builder.Services.AddHttpClient<GoUpcBarcodeService>();
 
         builder.Services.AddTransient<MainPage>();
         builder.Services.AddTransient<InventoryListPage>();
