@@ -123,6 +123,7 @@ public sealed class EanSearchBarcodeService
         var category = FindValue(entries, "Category", "Group", "Type");
 
         productName ??= ExtractHeadline(html);
+        productName ??= ExtractProductLineFromLink(html, barcode);
         productName ??= ExtractProductLineFromText(html, barcode);
         if (string.IsNullOrWhiteSpace(brand) && !string.IsNullOrWhiteSpace(productName))
         {
@@ -162,6 +163,23 @@ public sealed class EanSearchBarcodeService
             .ToList();
 
         return candidates.Count > 0 ? candidates[0].Line : null;
+    }
+
+    private static string? ExtractProductLineFromLink(string html, string barcode)
+    {
+        if (string.IsNullOrWhiteSpace(barcode))
+        {
+            return null;
+        }
+
+        var pattern = $"<a[^>]*href=\\\"/ean/{Regex.Escape(barcode)}\\\"[^>]*>(.*?)</a>";
+        var match = Regex.Match(html, pattern, RegexOptions.IgnoreCase | RegexOptions.Singleline);
+        if (!match.Success)
+        {
+            return null;
+        }
+
+        return CleanHtml(match.Groups[1].Value);
     }
 
     private static int ScoreCandidateLine(string line, string barcode)
