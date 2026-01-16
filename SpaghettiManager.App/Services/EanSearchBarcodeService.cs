@@ -123,6 +123,11 @@ public sealed class EanSearchBarcodeService
         var category = FindValue(entries, "Category", "Group", "Type");
 
         productName ??= ExtractHeadline(html);
+        productName ??= ExtractProductLineFromText(html, barcode);
+        if (string.IsNullOrWhiteSpace(brand) && !string.IsNullOrWhiteSpace(productName))
+        {
+            brand = DeriveBrandFromProductName(productName);
+        }
 
         return new EanSearchLookupInfo(barcode, barcodeType, productName, brand, category, entries);
     }
@@ -134,6 +139,65 @@ public sealed class EanSearchBarcodeService
             ?? ExtractFirstMatch(html, "<h2[^>]*>(.*?)</h2>");
 
         return headline;
+    }
+
+    private static string? ExtractProductLineFromText(string html, string barcode)
+    {
+        var text = StripHtml(html);
+        var lines = text.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(line => line.Trim())
+            .Where(line => line.Length >= 8 && line.Length <= 140)
+            .Where(line => !line.Contains("Access denied", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        if (lines.Count == 0)
+        {
+            return null;
+        }
+
+        var candidates = lines
+            .Select(line => new { Line = line, Score = ScoreCandidateLine(line, barcode) })
+            .Where(item => item.Score > 0)
+            .OrderByDescending(item => item.Score)
+            .ToList();
+
+        return candidates.Count > 0 ? candidates[0].Line : null;
+    }
+
+    private static int ScoreCandidateLine(string line, string barcode)
+    {
+        var score = 0;
+        if (line.Contains("mm", StringComparison.OrdinalIgnoreCase))
+        {
+            score += 2;
+        }
+        if (line.Contains("kg", StringComparison.OrdinalIgnoreCase) || line.Contains(" g", StringComparison.OrdinalIgnoreCase))
+        {
+            score += 2;
+        }
+        if (line.Contains("PLA", StringComparison.OrdinalIgnoreCase)
+            || line.Contains("PETG", StringComparison.OrdinalIgnoreCase)
+            || line.Contains("ABS", StringComparison.OrdinalIgnoreCase)
+            || line.Contains("Filament", StringComparison.OrdinalIgnoreCase))
+        {
+            score += 3;
+        }
+        if (!string.IsNullOrWhiteSpace(barcode) && line.Contains(barcode, StringComparison.OrdinalIgnoreCase))
+        {
+            score -= 2;
+        }
+        if (line.Any(char.IsLetter) && line.Any(char.IsDigit))
+        {
+            score += 1;
+        }
+
+        return score;
+    }
+
+    private static string? DeriveBrandFromProductName(string productName)
+    {
+        var firstToken = productName.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+        return string.IsNullOrWhiteSpace(firstToken) ? null : firstToken.Trim();
     }
 
     private static string? ExtractFirstMatch(string html, string pattern)
@@ -287,6 +351,19 @@ public sealed class EanSearchBarcodeService
 
         var noTags = TagRegex.Replace(value, string.Empty);
         return WebUtility.HtmlDecode(noTags).Trim();
+    }
+
+    private static string StripHtml(string html)
+    {
+        if (string.IsNullOrWhiteSpace(html))
+        {
+            return string.Empty;
+        }
+
+        var withoutScripts = Regex.Replace(html, "<script[^>]*>.*?</script>", string.Empty, RegexOptions.Singleline | RegexOptions.IgnoreCase);
+        var withoutStyles = Regex.Replace(withoutScripts, "<style[^>]*>.*?</style>", string.Empty, RegexOptions.Singleline | RegexOptions.IgnoreCase);
+        var noTags = TagRegex.Replace(withoutStyles, "\n");
+        return WebUtility.HtmlDecode(noTags);
     }
 
     private sealed record EanSearchLookupInfo(
